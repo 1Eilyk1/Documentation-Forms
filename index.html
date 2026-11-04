@@ -793,6 +793,7 @@ let currentDate = new Date();
 
 let selectedDate = null;
 let editingCallIndex = null;
+let editingCallDate = null;
 
 /* Selected folder for direct .txt saving */
 let saveDirectoryHandle = null;
@@ -1149,29 +1150,22 @@ function closeModal() {
 ========================================================= */
 
 function clearForm() {
-
     document.getElementById("name").value = "";
-
     document.getElementById("reference").value = "";
-
     document.getElementById("email").value = "";
-
     document.getElementById("phone").value = "";
 
-    const summary =
-        document.getElementById("summary");
-
+    const summary = document.getElementById("summary");
     summary.value = "";
-
     autoResize(summary);
+
     editingCallIndex = null;
+    editingCallDate = null;
 
-         const saveButton = document.querySelector(".add-btn");
-
-         if (saveButton) {
-         saveButton.textContent = "+ Add Documented Call";
-      }
-
+    const saveButton = document.querySelector(".add-btn");
+    if (saveButton) {
+        saveButton.textContent = "+ Add Documented Call";
+    }
 }
 
 
@@ -1192,105 +1186,66 @@ function autoResize(textarea) {
 ========================================================= */
 
 function addCall() {
+    const name = document.getElementById("name").value.trim();
+    const reference = document.getElementById("reference").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const summary = document.getElementById("summary").value.trim();
 
-    const name =
-        document
-            .getElementById("name")
-            .value
-            .trim();
-
-
-    const reference =
-        document
-            .getElementById("reference")
-            .value
-            .trim();
-
-
-    const email =
-        document
-            .getElementById("email")
-            .value
-            .trim();
-
-
-    const phone =
-        document
-            .getElementById("phone")
-            .value
-            .trim();
-
-
-    const summary =
-        document
-            .getElementById("summary")
-            .value
-            .trim();
-
-
-    /* Require at least one field */
-
-    if (
-        !name &&
-        !reference &&
-        !email &&
-        !phone &&
-        !summary
-    ) {
-
-        alert(
-            "Please enter at least one piece of information."
-        );
-
+    // Require at least one field.
+    if (!name && !reference && !email && !phone && !summary) {
+        alert("Please enter at least one piece of information.");
         return;
-
     }
 
+    if (!selectedDate) {
+        alert("Please select a date before saving a call.");
+        return;
+    }
 
     if (!documentationData[selectedDate]) {
-
         documentationData[selectedDate] = [];
-
     }
 
-
     if (editingCallIndex !== null) {
+        const targetDate = editingCallDate || selectedDate;
+        const existingCall = documentationData[targetDate]?.[editingCallIndex];
 
-          documentationData[selectedDate][editingCallIndex] = {
-            ...documentationData[selectedDate][editingCallIndex],
-            name: name,
-            reference: reference,
-            email: email,
-            phone: phone,
-            summary: summary
-          };
+        if (!existingCall) {
+            alert("This call could not be found. Please reopen it and try again.");
+            editingCallIndex = null;
+            editingCallDate = null;
+            clearForm();
+            return;
+        }
 
-          editingCallIndex = null;
+        documentationData[targetDate][editingCallIndex] = {
+            ...existingCall,
+            name,
+            reference,
+            email,
+            phone,
+            summary
+        };
 
-} else {
-
-          documentationData[selectedDate].push({
-
-              name: name,
-              reference: reference,
-              email: email,
-              phone: phone,
-              summary: summary
-
-             });
-
-}
-
-    });
+        // Return to the date whose record was edited.
+        selectedDate = targetDate;
+        editingCallIndex = null;
+        editingCallDate = null;
+    } else {
+        documentationData[selectedDate].push({
+            name,
+            reference,
+            email,
+            phone,
+            summary
+        });
+    }
 
     saveDocumentationData();
-
     clearForm();
-
     renderCallList();
-
     renderCalendar();
-
 }
 
 
@@ -1413,29 +1368,38 @@ function renderCallList() {
 ========================================================= */
 
 function editCall(index) {
+    const calls = documentationData[selectedDate] || [];
+    const call = calls[index];
 
-    const call = documentationData[selectedDate][index];
-
-    if (!call) return;
+    if (!call) {
+        alert("This call could not be found.");
+        return;
+    }
 
     editingCallIndex = index;
+    editingCallDate = selectedDate;
 
     document.getElementById("name").value = call.name || "";
     document.getElementById("reference").value = call.reference || "";
     document.getElementById("email").value = call.email || "";
     document.getElementById("phone").value = call.phone || "";
-    document.getElementById("summary").value = call.summary || "";
 
-    autoResize(document.getElementById("summary"));
+    const summary = document.getElementById("summary");
+    summary.value = call.summary || "";
+    autoResize(summary);
 
     const saveButton = document.querySelector(".add-btn");
-    saveButton.textContent = "Save Changes";
+    if (saveButton) {
+        saveButton.textContent = "Save Changes";
+    }
 
-    document.querySelector(".form-section").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-    });
+    const formSection = document.querySelector("#modalOverlay .form-section");
+    if (formSection) {
+        formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
 }
+
+
 function deleteCall(index) {
 
     if (
