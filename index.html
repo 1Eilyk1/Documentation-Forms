@@ -71,6 +71,21 @@
     .call-item { border:1px solid #293548; border-radius:12px; padding:15px; background:#0e1622; }
     .call-item-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
     .call-number { font-weight:bold; color:#93c5fd; }
+   .edit-btn {
+    border: 1px solid #2563eb;
+    background: #172b4d;
+    color: #93c5fd;
+    padding: 6px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+   }
+
+.edit-btn:hover {
+    background: #1e40af;
+    color: white;
+}
     .delete-btn { border:1px solid #5b3035; background:#321b21; color:#fca5a5; padding:6px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; }
     .delete-btn:hover { background:#482027; }
     .call-info { display:grid; grid-template-columns:repeat(2,1fr); gap:7px 15px; font-size:13px; color:#c8d2df; }
@@ -777,6 +792,7 @@ let documentationData = loadDocumentationData();
 let currentDate = new Date();
 
 let selectedDate = null;
+let editingCallIndex = null;
 
 /* Selected folder for direct .txt saving */
 let saveDirectoryHandle = null;
@@ -1148,6 +1164,13 @@ function clearForm() {
     summary.value = "";
 
     autoResize(summary);
+    editingCallIndex = null;
+
+         const saveButton = document.querySelector(".add-btn");
+
+         if (saveButton) {
+         saveButton.textContent = "+ Add Documented Call";
+      }
 
 }
 
@@ -1231,17 +1254,32 @@ function addCall() {
     }
 
 
-    documentationData[selectedDate].push({
+    if (editingCallIndex !== null) {
 
-        name: name,
+          documentationData[selectedDate][editingCallIndex] = {
+            ...documentationData[selectedDate][editingCallIndex],
+            name: name,
+            reference: reference,
+            email: email,
+            phone: phone,
+            summary: summary
+          };
 
-        reference: reference,
+          editingCallIndex = null;
 
-        email: email,
+} else {
 
-        phone: phone,
+          documentationData[selectedDate].push({
 
-        summary: summary
+              name: name,
+              reference: reference,
+              email: email,
+              phone: phone,
+              summary: summary
+
+             });
+
+}
 
     });
 
@@ -1303,12 +1341,19 @@ function renderCallList() {
                         Call #${index + 1}
                     </div>
 
-                    <button
-                        class="delete-btn"
-                        onclick="deleteCall(${index})"
-                    >
-                        Delete
-                    </button>
+                    <div style="display:flex;gap:8px;">
+                      <button
+                          class="edit-btn"
+                           onclick="editCall(${index})">
+                           Edit
+                      </button>
+
+                      <button
+                          class="delete-btn"
+                          onclick="deleteCall(${index})">
+                          Delete
+                      </button>
+                     </div>
 
                 </div>
 
@@ -1363,7 +1408,34 @@ function renderCallList() {
 /* =========================================================
    DELETE CALL
 ========================================================= */
+/* =========================================================
+   EDIT EXISTING CALL
+========================================================= */
 
+function editCall(index) {
+
+    const call = documentationData[selectedDate][index];
+
+    if (!call) return;
+
+    editingCallIndex = index;
+
+    document.getElementById("name").value = call.name || "";
+    document.getElementById("reference").value = call.reference || "";
+    document.getElementById("email").value = call.email || "";
+    document.getElementById("phone").value = call.phone || "";
+    document.getElementById("summary").value = call.summary || "";
+
+    autoResize(document.getElementById("summary"));
+
+    const saveButton = document.querySelector(".add-btn");
+    saveButton.textContent = "Save Changes";
+
+    document.querySelector(".form-section").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
 function deleteCall(index) {
 
     if (
