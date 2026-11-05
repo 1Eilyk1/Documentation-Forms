@@ -88,6 +88,8 @@
     background: #1e40af;
     color: white;
 }
+    .move-btn { border:1px solid #256b62; background:#12312f; color:#99f6e4; padding:6px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; }
+    .move-btn:hover { background:#155e56; color:white; }
     .delete-btn { border:1px solid #5b3035; background:#321b21; color:#fca5a5; padding:6px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; }
     .delete-btn:hover { background:#482027; }
     .call-info { display:grid; grid-template-columns:repeat(2,1fr); gap:7px 15px; font-size:13px; color:#c8d2df; }
@@ -1320,6 +1322,11 @@ function renderCallList() {
                       </button>
 
                       <button
+                          class="move-btn"
+                          onclick="moveCallToDate(${index})">
+                          Move
+                      </button>
+                      <button
                           class="delete-btn"
                           onclick="deleteCall(${index})">
                           Delete
@@ -1373,6 +1380,58 @@ function renderCallList() {
         }
     );
 
+}
+
+
+/* =========================================================
+   MOVE A CALL TO ANOTHER DATE
+========================================================= */
+function moveCallToDate(index) {
+    if (!selectedDate || !Array.isArray(documentationData[selectedDate])) return;
+
+    const calls = documentationData[selectedDate];
+    const call = calls[index];
+    if (!call) return;
+
+    const enteredDate = prompt(
+        "Move this documentation to which date?\nEnter the date as YYYY-MM-DD (for example, 2026-11-05):",
+        selectedDate
+    );
+    if (enteredDate === null) return;
+
+    const targetDate = enteredDate.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
+        alert("Please enter the date in YYYY-MM-DD format, for example 2026-11-05.");
+        return;
+    }
+    const [year, month, day] = targetDate.split("-").map(Number);
+    const parsedDate = new Date(year, month - 1, day);
+    if (parsedDate.getFullYear() !== year || parsedDate.getMonth() !== month - 1 || parsedDate.getDate() !== day) {
+        alert("That date is not valid. Please check the year, month, and day.");
+        return;
+    }
+    if (targetDate === selectedDate) {
+        alert("This documentation is already on that date.");
+        return;
+    }
+
+    if (!confirm(`Move this documentation from ${selectedDate} to ${targetDate}?`)) return;
+
+    if (!Array.isArray(documentationData[targetDate])) documentationData[targetDate] = [];
+    documentationData[targetDate].push(call);
+    calls.splice(index, 1);
+    if (calls.length === 0) delete documentationData[selectedDate];
+
+    if (editingCallDate === selectedDate && editingCallIndex === index) {
+        editingCallIndex = null;
+        editingCallDate = null;
+        clearForm();
+    }
+
+    saveDocumentationData();
+    renderCallList();
+    renderCalendar();
+    alert(`Documentation moved to ${targetDate}.`);
 }
 
 
