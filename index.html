@@ -53,6 +53,8 @@
     .modal-header h2 { font-size:20px; }
     .close-btn { border:1px solid #34445c; background:#1b2739; color:#dbeafe; width:35px; height:35px; border-radius:50%; font-size:20px; cursor:pointer; }
     .close-btn:hover { background:#27364d; }
+    .next-day-btn { border:1px solid rgba(0,217,255,.42); background:linear-gradient(110deg,rgba(0,126,167,.34),rgba(95,65,190,.32)); color:#c9f8ff; padding:9px 15px; border-radius:9px; font-size:12px; font-weight:700; cursor:pointer; transition:.2s; }
+    .next-day-btn:hover { background:linear-gradient(110deg,rgba(0,160,190,.5),rgba(115,75,210,.48)); border-color:#00e5ff; box-shadow:0 0 16px rgba(0,217,255,.16); }
     .modal-body { padding:25px; }
     .form-section { background:#121a27; border:1px solid #263244; border-radius:14px; padding:20px; margin-bottom:20px; }
     .section-title { font-size:14px; font-weight:bold; color:#b9c7d9; margin-bottom:15px; text-transform:uppercase; letter-spacing:.4px; }
@@ -626,9 +628,12 @@
 <div class="modal">
 <div class="modal-header">
 <h2 id="modalTitle">Call Documentation</h2>
-<button class="close-btn" onclick="closeModal()">
+<div style="display:flex;align-items:center;gap:9px;">
+<button class="next-day-btn" type="button" onclick="goToNextDocumentationDate()">Next →</button>
+<button class="close-btn" onclick="closeModal()" aria-label="Close">
                 ×
             </button>
+</div>
 </div>
 <div class="modal-body">
 <!-- ================= FORM ================= -->
@@ -1134,6 +1139,18 @@ function openDate(date) {
 /* =========================================================
    CLOSE MODAL
 ========================================================= */
+
+function goToNextDocumentationDate() {
+    if (!selectedDate) return;
+
+    // selectedDate is stored as YYYY-MM-DD; use local date parts to avoid timezone shifts.
+    const parts = selectedDate.split("-").map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return;
+
+    const nextDate = new Date(parts[0], parts[1] - 1, parts[2] + 1);
+    openDate(nextDate);
+}
+
 
 function closeModal() {
 
