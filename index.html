@@ -510,7 +510,9 @@
 <label class="toolbar-btn import-btn">⬆️ Import Backup<input accept="application/json,.json" id="backupFile" onchange="importBackup(event)" type="file"/></label>
 <button class="toolbar-btn danger" onclick="clearAllData()">🗑️ Clear All Data</button>
 <button class="recovery-toggle" onclick="toggleRecoveryBin()" type="button">♻️ Recycle Bin <span id="recoveryCount">0</span></button>
+<button class="toolbar-btn" type="button" onclick="openAutoBackupSettings()">⚙️ Backup Settings</button>
 <span class="save-indicator" id="saveIndicator" role="status">Saved locally</span>
+<span class="save-indicator" id="autoBackupIndicator" role="status" title="Automatic backup runs once daily at 4:00 PM while this page is open">Auto backup · Daily at 4:00 PM</span>
 </div>
 <div aria-live="polite" class="recovery-panel" id="recoveryPanel"><strong>Recently deleted calls</strong><div id="recoveryList"></div></div>
 <!-- ================= GLOBAL CALL SEARCH ================= -->
@@ -625,6 +627,44 @@
 <div class="other-output"><div class="other-output-head"><h4>Generated Documentation</h4><div class="mini-actions"><button onclick="clearOtherOutput()">▤ Clear</button><button onclick="copyOtherDoc()">▣ Copy</button></div></div><pre id="otherOutput">Your generated documentation will appear here.</pre></div>
 </div>
 </section>
+<!-- ================= AUTOMATIC BACKUP SETTINGS ================= -->
+<div class="modal-overlay" id="autoBackupSettingsModal" style="display:none;z-index:1200;">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h2>⚙️ Automatic Backup Settings</h2>
+      <button class="close-btn" type="button" onclick="closeAutoBackupSettings()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="section-title">Daily backup schedule</div>
+        <label style="display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--text,#e8eef8);">
+          <input id="autoBackupEnabled" type="checkbox" checked style="width:18px;height:18px;accent-color:#55aaff;">
+          Enable automatic daily backup
+        </label>
+        <div class="form-group" style="margin-top:14px;">
+          <label for="autoBackupTime">BACKUP TIME</label>
+          <input id="autoBackupTime" type="time" value="16:00" style="width:100%;">
+        </div>
+        <div class="form-group" style="margin-top:16px;">
+          <label>AUTOMATIC BACKUP FOLDER</label>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:7px;">
+            <button class="toolbar-btn" type="button" onclick="chooseAutoBackupFolder()">📁 Choose Folder</button>
+            <button class="toolbar-btn" type="button" onclick="clearAutoBackupFolder()">Use Downloads</button>
+          </div>
+          <div id="autoBackupFolderName" style="font-size:12px;color:#9fb0c8;margin-top:9px;">Default: browser Downloads folder</div>
+          <p style="font-size:12px;line-height:1.5;color:#9fb0c8;margin-top:8px;">Choose your <strong>Documents\Backup</strong> folder (create the Backup folder first if needed). Chrome/Edge will ask you to grant folder access.</p>
+        </div>
+        <p style="font-size:12px;line-height:1.6;color:#9fb0c8;margin-top:12px;">The schedule uses this computer's local time zone: <strong id="autoBackupTimezone"></strong>.</p>
+        <p style="font-size:12px;line-height:1.6;color:#9fb0c8;">Settings are saved separately in each person's browser on this device/profile. Other users can choose their own backup time. The app must be open for the scheduled backup to run; if opened later, it will catch up that day.</p>
+        <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:18px;">
+          <button class="toolbar-btn" type="button" onclick="closeAutoBackupSettings()">Cancel</button>
+          <button class="toolbar-btn" type="button" onclick="saveAutoBackupSettings()">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ================= MODAL ================= -->
 <div class="modal-overlay" id="modalOverlay">
 <div class="modal">
@@ -1820,6 +1860,205 @@ async function exportBackup(){
     setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
+
+/* =========================================================
+   AUTOMATIC DAILY BACKUP — PER-USER LOCAL SCHEDULE
+   Each browser profile stores its own enabled/time settings.
+========================================================= */
+const AUTO_BACKUP_LAST_RUN_KEY = "callDocumentationAutoBackupLastRun_v1";
+const AUTO_BACKUP_SETTINGS_KEY = "callDocumentationAutoBackupSettings_v1";
+const AUTO_BACKUP_FOLDER_DB = "callDocumentationBackupFolderDB_v1";
+const AUTO_BACKUP_FOLDER_STORE = "handles";
+const AUTO_BACKUP_FOLDER_KEY = "dailyBackupFolder";
+let autoBackupCheckInProgress = false;
+
+function getAutoBackupSettings(){
+    const defaults = {enabled:true, time:"16:00"};
+    try {
+        const saved = JSON.parse(localStorage.getItem(AUTO_BACKUP_SETTINGS_KEY) || "null");
+        if(saved && typeof saved === "object") return {
+            enabled: saved.enabled !== false,
+            time: /^([01]\d|2[0-3]):[0-5]\d$/.test(saved.time || "") ? saved.time : defaults.time
+        };
+    } catch(error) {}
+    return defaults;
+}
+
+function openAutoBackupSettings(){
+    const settings = getAutoBackupSettings();
+    const enabled = document.getElementById("autoBackupEnabled");
+    const time = document.getElementById("autoBackupTime");
+    const zone = document.getElementById("autoBackupTimezone");
+    if(enabled) enabled.checked = settings.enabled;
+    if(time) time.value = settings.time;
+    if(zone) zone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || "device local time";
+    refreshAutoBackupFolderLabel();
+    const modal = document.getElementById("autoBackupSettingsModal");
+    if(modal) modal.style.display = "flex";
+}
+
+function closeAutoBackupSettings(){
+    const modal = document.getElementById("autoBackupSettingsModal");
+    if(modal) modal.style.display = "none";
+}
+
+function updateAutoBackupIndicator(message){
+    const indicator = document.getElementById("autoBackupIndicator");
+    if(!indicator) return;
+    const settings = getAutoBackupSettings();
+    if(message){ indicator.textContent = message; return; }
+    indicator.textContent = settings.enabled ? `Auto backup · Daily at ${settings.time}` : "Auto backup · Off";
+    indicator.title = "Configure the automatic backup schedule in Backup Settings";
+}
+
+function saveAutoBackupSettings(){
+    const enabled = !!document.getElementById("autoBackupEnabled")?.checked;
+    const time = document.getElementById("autoBackupTime")?.value || "16:00";
+    if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)){
+        alert("Please choose a valid backup time.");
+        return;
+    }
+    try {
+        localStorage.setItem(AUTO_BACKUP_SETTINGS_KEY, JSON.stringify({enabled, time}));
+    } catch(error) {
+        alert("Could not save backup settings in this browser.");
+        return;
+    }
+    closeAutoBackupSettings();
+    updateAutoBackupIndicator();
+    checkAutomaticDailyBackup();
+}
+
+function openAutoBackupFolderDB(){
+    return new Promise((resolve,reject)=>{
+        const request=indexedDB.open(AUTO_BACKUP_FOLDER_DB,1);
+        request.onupgradeneeded=()=>request.result.createObjectStore(AUTO_BACKUP_FOLDER_STORE);
+        request.onsuccess=()=>resolve(request.result);
+        request.onerror=()=>reject(request.error || new Error("Could not open backup folder settings."));
+    });
+}
+async function storeAutoBackupFolderHandle(handle){
+    const db=await openAutoBackupFolderDB();
+    await new Promise((resolve,reject)=>{
+        const tx=db.transaction(AUTO_BACKUP_FOLDER_STORE,"readwrite");
+        tx.objectStore(AUTO_BACKUP_FOLDER_STORE).put(handle,AUTO_BACKUP_FOLDER_KEY);
+        tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+}
+async function getAutoBackupFolderHandle(){
+    try{
+        const db=await openAutoBackupFolderDB();
+        const handle=await new Promise((resolve,reject)=>{
+            const req=db.transaction(AUTO_BACKUP_FOLDER_STORE,"readonly").objectStore(AUTO_BACKUP_FOLDER_STORE).get(AUTO_BACKUP_FOLDER_KEY);
+            req.onsuccess=()=>resolve(req.result || null); req.onerror=()=>reject(req.error);
+        });
+        db.close(); return handle;
+    }catch(error){ return null; }
+}
+async function deleteAutoBackupFolderHandle(){
+    try{
+        const db=await openAutoBackupFolderDB();
+        await new Promise((resolve,reject)=>{
+            const tx=db.transaction(AUTO_BACKUP_FOLDER_STORE,"readwrite");
+            tx.objectStore(AUTO_BACKUP_FOLDER_STORE).delete(AUTO_BACKUP_FOLDER_KEY);
+            tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+        }); db.close();
+    }catch(error){}
+}
+async function refreshAutoBackupFolderLabel(){
+    const label=document.getElementById("autoBackupFolderName");
+    if(!label) return;
+    const handle=await getAutoBackupFolderHandle();
+    label.textContent=handle ? `Selected folder: ${handle.name}` : "Default: browser Downloads folder";
+}
+async function chooseAutoBackupFolder(){
+    if(!window.showDirectoryPicker){
+        alert("Folder selection is supported in recent Chrome and Edge versions. This browser will use Downloads instead."); return;
+    }
+    try{
+        const handle=await window.showDirectoryPicker({mode:"readwrite",startIn:"documents"});
+        let permission=await handle.queryPermission({mode:"readwrite"});
+        if(permission!=="granted") permission=await handle.requestPermission({mode:"readwrite"});
+        if(permission!=="granted") throw new Error("Folder permission was not granted.");
+        await storeAutoBackupFolderHandle(handle);
+        await refreshAutoBackupFolderLabel();
+        updateAutoBackupIndicator("Backup folder selected · " + handle.name);
+    }catch(error){
+        if(error.name!=="AbortError") alert("Could not select that folder: " + (error.message || error));
+    }
+}
+async function clearAutoBackupFolder(){
+    await deleteAutoBackupFolderHandle();
+    await refreshAutoBackupFolderLabel();
+    updateAutoBackupIndicator("Auto backup will use Downloads");
+}
+async function createAutomaticBackup(){
+    const now = new Date();
+    const day = dateKey(now);
+    const backup = {
+        app: "Call Documentation Log",
+        version: 4,
+        backupType: "automatic-daily",
+        exportedAt: now.toISOString(),
+        documentationData: documentationData
+    };
+    const filename = `Call_Documentation_AutoBackup_${day}.json`;
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type:"application/json"});
+    const folderHandle=await getAutoBackupFolderHandle();
+    if(folderHandle){
+        let permission=await folderHandle.queryPermission({mode:"readwrite"});
+        if(permission!=="granted"){
+            updateAutoBackupIndicator("Backup folder permission needed");
+            throw new Error("Please reopen Backup Settings and reselect the backup folder to renew access. A browser download was not started.");
+        }
+        const fileHandle=await folderHandle.getFileHandle(filename,{create:true});
+        const writable=await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+    }else{
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url; link.download = filename; link.style.display = "none";
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+    localStorage.setItem(AUTO_BACKUP_LAST_RUN_KEY, day);
+    updateAutoBackupIndicator("Auto backup saved · " + now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}));
+}
+
+async function checkAutomaticDailyBackup(){
+    if(autoBackupCheckInProgress || document.visibilityState === "hidden") return;
+    const settings = getAutoBackupSettings();
+    updateAutoBackupIndicator();
+    if(!settings.enabled) return;
+    const now = new Date();
+    const today = dateKey(now);
+    const [targetHour, targetMinute] = settings.time.split(":").map(Number);
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const targetMinutes = targetHour * 60 + targetMinute;
+    let lastRun = "";
+    try { lastRun = localStorage.getItem(AUTO_BACKUP_LAST_RUN_KEY) || ""; } catch(error) {}
+    if(currentMinutes < targetMinutes || lastRun === today) return;
+    autoBackupCheckInProgress = true;
+    try {
+        await createAutomaticBackup();
+    } catch(error) {
+        console.error("Automatic backup could not be created:", error);
+        updateAutoBackupIndicator("Auto backup needs attention");
+    } finally {
+        autoBackupCheckInProgress = false;
+    }
+}
+
+function startAutomaticDailyBackup(){
+    updateAutoBackupIndicator();
+    checkAutomaticDailyBackup();
+    setInterval(checkAutomaticDailyBackup, 30000);
+    document.addEventListener("visibilitychange", checkAutomaticDailyBackup);
+    window.addEventListener("focus", checkAutomaticDailyBackup);
+}
+
 async function exportAllDocumentation(){
     const dates=Object.keys(documentationData)
         .filter(key => Array.isArray(documentationData[key]) && documentationData[key].length > 0)
@@ -2564,6 +2803,9 @@ const _arcSaveBtn=document.getElementById('arcSaveLog');if(_arcSaveBtn)_arcSaveB
 renderCalendar();
 renderDashboardExtras();
 renderRecoveryBin();
+startAutomaticDailyBackup();
+const _autoBackupSettingsModal=document.getElementById("autoBackupSettingsModal");
+if(_autoBackupSettingsModal) _autoBackupSettingsModal.addEventListener("click",e=>{if(e.target===_autoBackupSettingsModal) closeAutoBackupSettings();});
 
 // Keyboard shortcuts: Alt+N creates a log, Ctrl/Cmd+K focuses search, Esc closes the record modal.
 document.addEventListener("keydown",function(event){
