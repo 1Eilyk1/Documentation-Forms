@@ -216,7 +216,7 @@
     .header p { font-size:12px; }
     .header::before { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(0,207,255,.04),rgba(171,66,255,.08)); pointer-events:none; }
     .today-btn { padding:10px 16px; }
-    .data-toolbar { margin:12px 0 0; padding:0; max-width:none; justify-content:flex-end; }
+    .data-toolbar { margin:12px 0 0; padding:0; max-width:none; justify-content:flex-end; flex-wrap:wrap; gap:8px; }
     .toolbar-btn { padding:8px 12px; font-size:11px; }
     .search-panel { max-width:none; margin:12px 0 16px; padding:0; }
     .search-card { padding:14px 16px; border-radius:14px; }
@@ -488,7 +488,7 @@
 <button class="side-link" id="otherFormsNav" onclick="showOtherForms()"><span>📝</span>Other Docu Form</button>
 <button class="side-link" onclick="window.location.href='BALIDASHUN.html'"><span>📋</span>POP Validation</button>
 <button class="side-link" id="analyticsNav" onclick="showAnalyticsTab()"><span>▥</span>Analytics</button>
-<button class="side-link" onclick="exportBackup()"><span>☁</span>Backup &amp; Export</button>
+<button class="side-link" onclick="openAutoBackupSettings()"><span>⚙</span>Backup Settings</button>
    
 <div class="side-spacer"></div>
 <div class="side-safe"><b>◉ Your data is safe</b>Stored locally in your browser</div>
@@ -505,14 +505,9 @@
     </button>
 </header>
 <div class="data-toolbar">
-<button class="toolbar-btn" onclick="exportBackup()">⬇️ Export Backup</button>
-<button class="toolbar-btn" onclick="exportAllDocumentation()">📚 Export All Documentation</button>
-<label class="toolbar-btn import-btn">⬆️ Import Backup<input accept="application/json,.json" id="backupFile" onchange="importBackup(event)" type="file"/></label>
-<button class="toolbar-btn danger" onclick="clearAllData()">🗑️ Clear All Data</button>
 <button class="recovery-toggle" onclick="toggleRecoveryBin()" type="button">♻️ Recycle Bin <span id="recoveryCount">0</span></button>
-<button class="toolbar-btn" type="button" onclick="openAutoBackupSettings()">⚙️ Backup Settings</button>
 <span class="save-indicator" id="saveIndicator" role="status">Saved locally</span>
-<span class="save-indicator" id="autoBackupIndicator" role="status" title="Automatic backup runs once daily at 4:00 PM while this page is open">Auto backup · Daily at 4:00 PM</span>
+<span class="save-indicator" id="autoBackupIndicator" role="status" title="Configure the daily backup schedule in Backup Settings">Auto backup · Daily at 4:00 PM</span>
 </div>
 <div aria-live="polite" class="recovery-panel" id="recoveryPanel"><strong>Recently deleted calls</strong><div id="recoveryList"></div></div>
 <!-- ================= GLOBAL CALL SEARCH ================= -->
@@ -631,12 +626,19 @@
 <div class="modal-overlay" id="autoBackupSettingsModal" style="display:none;z-index:1200;">
   <div class="modal" style="max-width:480px;">
     <div class="modal-header">
-      <h2>⚙️ Automatic Backup Settings</h2>
+      <h2>⚙️ Backup Settings</h2>
       <button class="close-btn" type="button" onclick="closeAutoBackupSettings()" aria-label="Close">×</button>
     </div>
     <div class="modal-body">
       <div class="form-section">
-        <div class="section-title">Daily backup schedule</div>
+        <div class="section-title">Backup &amp; Export</div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 18px;">
+          <button class="toolbar-btn" type="button" onclick="exportBackup()">⬇️ Export Backup</button>
+          <button class="toolbar-btn" type="button" onclick="exportAllDocumentation()">📚 Export All Documentation</button>
+          <label class="toolbar-btn import-btn">⬆️ Import Backup<input accept="application/json,.json" id="backupFile" onchange="importBackup(event)" type="file"/></label>
+          <button class="toolbar-btn danger" type="button" onclick="clearAllData()">🗑️ Clear All Data</button>
+        </div>
+        <div class="section-title">Automatic backup schedule</div>
         <label style="display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--text,#e8eef8);">
           <input id="autoBackupEnabled" type="checkbox" checked style="width:18px;height:18px;accent-color:#55aaff;">
           Enable automatic daily backup
