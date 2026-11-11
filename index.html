@@ -456,6 +456,18 @@
 .other-card{color:#cbd5e1}
 @media(max-width:760px){.arc-caller-row{grid-template-columns:1fr;gap:12px}}
 
+
+/* Sidebar overflow fix: keep every navigation item reachable on short/narrow windows. */
+.app-sidebar{box-sizing:border-box;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(73,190,255,.55) transparent;min-height:0;padding-bottom:14px}
+.app-sidebar::-webkit-scrollbar{width:5px}
+.app-sidebar::-webkit-scrollbar-thumb{background:rgba(73,190,255,.45);border-radius:8px}
+.app-sidebar .side-brand,.app-sidebar .side-link,.app-sidebar .side-safe{flex-shrink:0;min-width:0}
+.app-sidebar .side-link{box-sizing:border-box;width:100%;min-height:48px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
+.app-sidebar .side-link span{flex:0 0 20px}
+.app-sidebar .side-spacer{flex:0 0 8px;min-height:8px}
+.app-sidebar .side-safe{margin-top:4px}
+@media(max-height:850px) and (min-width:801px){.app-sidebar{gap:6px;padding-top:12px;padding-bottom:12px}.app-sidebar .side-brand{padding-bottom:14px;margin-bottom:6px}.app-sidebar .side-link{min-height:44px;padding:9px 10px}}
+
 </style>
 <style>
 /* FINAL RTB / Mail In / PRR dark-theme normalization */
