@@ -342,6 +342,8 @@ body::after{right:-30vw;transform:translateY(-50%) rotate(5deg);border:2px solid
 <body>
 <div class="neon-edge-orbit" aria-hidden="true"><div class="neon-loop"></div></div>
 <div class="container">
+  <div style="margin:0 0 14px;display:flex;justify-content:flex-start"><button type="button" onclick="window.location.href='index.html'" style="padding:9px 14px;border:1px solid #38516e;border-radius:9px;background:#172438;color:#e8edf5;font-weight:700;cursor:pointer">← Back to Dashboard</button></div>
+
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px">
     <div>
       <h1>POP / POF Validation</h1>
@@ -2338,6 +2340,14 @@ document.getElementById("newTemplateBtn").addEventListener("click",createNewTemp
   setInterval(()=>{updateStopwatch();updateCountdown();},250);
   updateStopwatch();updateCountdown();updateVof();
 })();
+
+// Open the Pre-Quote tab directly when navigated from the dashboard sidebar.
+if (window.location.hash === "#pre-quote") {
+  window.addEventListener("DOMContentLoaded", function () {
+    const preQuoteButton = document.getElementById("preQuoteTabBtn");
+    if (preQuoteButton) preQuoteButton.click();
+  });
+}
 </script>
 
 </body>
