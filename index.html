@@ -468,6 +468,17 @@
 .app-sidebar .side-safe{margin-top:4px}
 @media(max-height:850px) and (min-width:801px){.app-sidebar{gap:6px;padding-top:12px;padding-bottom:12px}.app-sidebar .side-brand{padding-bottom:14px;margin-bottom:6px}.app-sidebar .side-link{min-height:44px;padding:9px 10px}}
 
+
+/* Compact RTB/Mail-in Contact Log layout */
+#arcContact .arc-grid{gap:9px 12px}
+#arcContact .arc-subtitle{margin:7px 0 1px;padding:8px 11px}
+#arcContact .arc-field{gap:4px}
+#arcContact .arc-field input,
+#arcContact .arc-field select{min-height:36px;padding:7px 10px}
+#arcContact .arc-field textarea{min-height:58px;height:58px;padding:8px 10px;resize:vertical}
+#arcContact .compact-summary textarea{min-height:68px;height:68px}
+#arcContact .arc-caller-row{gap:9px}
+
 </style>
 <style>
 /* FINAL RTB / Mail In / PRR dark-theme normalization */
@@ -599,16 +610,48 @@
 <div class="arc-form-step" hidden="" id="arcContact"><h3>☎️ Contact Log Documentation</h3><div class="arc-grid">
 <div class="arc-subtitle">Caller Information</div><div class="arc-caller-row">
 <div class="arc-field"><label for="arcCaller">Caller Name</label><input id="arcCaller" placeholder="Caller full name"/></div><div class="arc-field"><label for="arcEmail">Caller Email</label><input id="arcEmail" placeholder="Email address" type="email"/></div><div class="arc-field"><label for="arcPhone">Caller Number</label><input id="arcPhone" placeholder="Contact number"/></div></div>
-<div class="arc-subtitle">Contact Summary &amp; Escalation</div>
-<div class="arc-field full"><label for="arcSummary">Call Summary</label><textarea id="arcSummary" placeholder="Summarise the contact and actions taken"></textarea></div>
+<div class="arc-subtitle">Summary</div>
+<div class="arc-field full compact-summary"><label for="arcSummary">Call Summary</label><textarea id="arcSummary" placeholder="Summarise the contact and actions taken"></textarea></div>
+<div class="arc-subtitle">De-escalation</div>
+<div class="arc-field full compact-summary"><label for="arcDeescalation">De-escalation</label><textarea id="arcDeescalation" placeholder="Document de-escalation steps or discussion"></textarea></div>
 <div class="arc-field"><label for="arcPriority">Priority Repair</label><select id="arcPriority"><option value="">Select</option><option>Yes</option><option>No</option></select></div><div class="arc-field"><label for="arcDiscount">Discounted Repair Fee (5%)</label><select id="arcDiscount"><option value="">Select</option><option>Advised</option><option>Not applicable</option></select></div>
-<div class="arc-field full"><label for="arcEscReason">Reason for Escalations</label><textarea id="arcEscReason" placeholder="Reason for escalation, if applicable"></textarea></div>
+<div class="arc-field full compact-summary"><label for="arcEscReason">Reason for Escalations</label><textarea id="arcEscReason" placeholder="Reason for escalation, if applicable"></textarea></div>
 <div class="arc-field"><label for="arcConsult">Resolution Consultation done with</label><input id="arcConsult" placeholder="Name / team"/></div><div class="arc-field"><label for="arcTransfer">Transferred to</label><input id="arcTransfer" placeholder="Name / team"/></div>
-<div class="arc-field"><label for="arcTicket">Ticket Type</label><select id="arcTicket"><option value="">Select ticket type</option><option>Pickup</option><option>Complaint</option><option>Component swap</option></select></div><div class="arc-field"><label for="arcRepair">Repair Type</label><select id="arcRepair"><option value="">Select repair type</option><option>RTB</option><option>Mail in</option><option>PRR</option><option>Ship direct</option><option>Complaint</option></select></div>
-<div class="arc-subtitle">Collection &amp; Return Details</div>
-<div class="arc-field full"><label for="arcPickupTime">Preferred Courier Pick-up Time and Date</label><input id="arcPickupTime" placeholder="Example: 9am–5pm only AU Only"/></div>
-<div class="arc-field full"><label for="arcAddress">Preferred Pick Up and Return Physical Address</label><textarea id="arcAddress" placeholder="Full collection and return address"></textarea></div>
-<div class="arc-subtitle">Repair Advice / Customer Reminders</div>
+
+<div class="arc-subtitle">Ticket &amp; Repair Type</div>
+
+<div class="arc-field">
+  <label for="arcTicket">Ticket Type</label>
+  <select id="arcTicket">
+    <option value="">Select ticket type</option>
+    <option>Pickup</option>
+    <option>Complaint</option>
+    <option>Component swap</option>
+  </select>
+</div>
+
+<div class="arc-field">
+  <label for="arcRepair">Repair Type</label>
+  <select id="arcRepair">
+    <option value="">Select repair type</option>
+    <option>RTB</option>
+    <option>Mail in</option>
+    <option>PRR</option>
+    <option>Ship direct</option>
+    <option>Complaint</option>
+  </select>
+</div>
+
+<div class="arc-field">
+  <label for="arcPickupTime">Preferred Courier Pick-up Time</label>
+  <input id="arcPickupTime" placeholder="Example: 9am–5pm only AU Only"/>
+</div>
+
+<div class="arc-field">
+  <label for="arcAddress">Preferred Pick Up and Return Physical Address</label>
+  <textarea id="arcAddress" placeholder="Full collection and return address"></textarea>
+</div>
+
 <div class="arc-subtitle">Disclosure</div><div class="arc-field"><label for="arcDataLoss">Repair Notice/Data Loss</label><select id="arcDataLoss"><option value="">Select option</option><option>Y</option><option>N</option></select></div><div class="arc-field"><label for="arcPhotos">Take Photos of all sides prior shipping</label><select id="arcPhotos"><option value="">Select option</option><option>Y</option><option>N</option></select></div><div class="arc-field full"><label for="arcAccessories">Include Accessories</label><input id="arcAccessories" placeholder="Yes, indicate what accessory / No"/></div><div class="arc-field full"><label for="arcPop">Advised to send POP/VOF/POF to pop.aca@acer.com</label><input id="arcPop" placeholder="Enter advice provided to the customer" type="text"/></div><div class="arc-field"><label for="arcSurvey">Survey Offered</label><select id="arcSurvey"><option value="">Select option</option><option>Y</option><option>N</option></select></div>
 </div></div>
 <div class="arc-actions"><button class="arc-btn gray" onclick="arcClearCurrent()">🗑 Clear Form</button><button class="arc-btn gray" id="arcPrev" onclick="arcPrevStep()">← Previous</button><button class="arc-btn green" onclick="arcGenerate()">✨ Generate Documentation</button><button class="arc-btn blue" hidden="" id="arcSaveLog" onclick="openSaveLogModal('arc')">💾 Save Log to Contact Logs</button><button class="arc-btn blue" id="arcNext" onclick="arcNextStep()">Next →</button></div>
@@ -2609,19 +2652,19 @@ function arcPrevStep(){arcShowStep(arcSteps[Math.max(0,arcSteps.indexOf(arcCurre
 function arcFields(){return [...document.querySelectorAll('#arcFormsShell input[id],#arcFormsShell textarea[id],#arcFormsShell select[id]')];}
 function arcSave(){const data={};arcFields().forEach(el=>data[el.id]=el.type==='checkbox'?el.checked:el.value);try{localStorage.setItem(ARC_STORAGE_KEY,JSON.stringify(data));}catch(e){} }
 function arcLoad(){try{const data=JSON.parse(localStorage.getItem(ARC_STORAGE_KEY)||'{}');arcFields().forEach(el=>{if(!(el.id in data))return;if(el.type==='checkbox')el.checked=!!data[el.id];else el.value=data[el.id];});}catch(e){}}
-function arcClearCurrent(){const ids={problem:['arcFault','arcWhen','arcReason','arcReplicate','arcChanges'],solution:['arcCustomerTS','arcNccTS','arcParts'],contact:['arcCaller','arcPhone','arcEmail','arcSummary','arcPriority','arcDiscount','arcEscReason','arcConsult','arcTransfer','arcTicket','arcRepair','arcPickupTime','arcAddress','arcDataLoss','arcPhotos','arcAccessories','arcPop','arcSurvey']}[arcCurrentStep];ids.forEach(id=>{const el=document.getElementById(id);if(el.type==='checkbox')el.checked=false;else el.value='';});arcSave();document.getElementById('arcStatus').textContent='Current section cleared.';}
+function arcClearCurrent(){const ids={problem:['arcFault','arcWhen','arcReason','arcReplicate','arcChanges'],solution:['arcCustomerTS','arcNccTS','arcParts'],contact:['arcCaller','arcPhone','arcEmail','arcSummary','arcDeescalation','arcPriority','arcDiscount','arcEscReason','arcConsult','arcTransfer','arcTicket','arcRepair','arcPickupTime','arcAddress','arcDataLoss','arcPhotos','arcAccessories','arcPop','arcSurvey']}[arcCurrentStep];ids.forEach(id=>{const el=document.getElementById(id);if(el.type==='checkbox')el.checked=false;else el.value='';});arcSave();document.getElementById('arcStatus').textContent='Current section cleared.';}
 function arcVal(id){const el=document.getElementById(id);return el?(el.type==='checkbox'?(el.checked?'Yes':'No'):el.value.trim()):'';}
 function arcGenerate(){
  const defs={
   problem:[['Fault / Issue','arcFault'],['When did the issue occur?','arcWhen'],['Call Reason','arcReason'],['How can the issue be replicated?','arcReplicate'],['Any recent HW/SW modification/change?','arcChanges']],
   solution:[['Customer / Retailer troubleshooting done before calling Acer','arcCustomerTS'],['NCC T/S done with the customer','arcNccTS'],['Suspected Parts?','arcParts']],
-  contact:[['Caller Name','arcCaller'],['Number','arcPhone'],['Email','arcEmail'],['Call Summary','arcSummary'],['Priority Repair','arcPriority'],['Discounted Repair Fee (5%)','arcDiscount'],['Reason for Escalations','arcEscReason'],['Resolution Consultation done with','arcConsult'],['Transferred to','arcTransfer'],['Ticket Type','arcTicket'],['Repair Type','arcRepair'],['Preferred Courier Pick-up Time and Date','arcPickupTime'],['Preferred Pick Up and Return Physical Address','arcAddress'],['Repair Notice/Data Loss','arcDataLoss'],['Take Photos of all side prior shipping','arcPhotos'],['Include Accessories','arcAccessories'],['Advised to send POP/VOF/POF to pop.aca@acer.com','arcPop'],['Survey Offered','arcSurvey']]
+  contact:[['Caller Name','arcCaller'],['Number','arcPhone'],['Email','arcEmail'],['Call Summary','arcSummary'],['De-escalation','arcDeescalation'],['Priority Repair','arcPriority'],['Discounted Repair Fee (5%)','arcDiscount'],['Reason for Escalations','arcEscReason'],['Resolution Consultation done with','arcConsult'],['Transferred to','arcTransfer'],['Ticket Type','arcTicket'],['Repair Type','arcRepair'],['Preferred Courier Pick-up Time and Date','arcPickupTime'],['Preferred Pick Up and Return Physical Address','arcAddress'],['Repair Notice/Data Loss','arcDataLoss'],['Take Photos of all side prior shipping','arcPhotos'],['Include Accessories','arcAccessories'],['Advised to send POP/VOF/POF to pop.aca@acer.com','arcPop'],['Survey Offered','arcSurvey']]
  };
  const headings={problem:'Problem Field Documentation:',solution:'Solutions Field Documentation:',contact:'Contact Log Documentation:'};
  const lines=[headings[arcCurrentStep]];
  if(arcCurrentStep==='contact'){
   const v=id=>arcVal(id)||'N/A';
-  lines.push('Caller Name: '+v('arcCaller'),'Number: '+v('arcPhone'),'Email: '+v('arcEmail'),'==','Call Summary: '+v('arcSummary'),'==','De-escalation:','* Priority Repair: '+v('arcPriority'),'* Discounted Repair Fee (5%): '+v('arcDiscount'),'* Reason for Escalations: '+v('arcEscReason'),'* Resolution Consultation done with: '+v('arcConsult'),'* Transferred to: '+v('arcTransfer'),'==','* Ticket Type: '+v('arcTicket'),'* Repair Type: '+v('arcRepair'),'* Preferred Courier Pick-up Time and Date: '+v('arcPickupTime'),'* Preferred Pick Up and Return Physical Address: '+v('arcAddress'),'==','Disclosure:','* Repair Notice/Data Loss: '+v('arcDataLoss'),'* Take Photos of all side prior shipping: '+v('arcPhotos'),'* Include Accessories: '+v('arcAccessories'),'* Advised to send POP/VOF/POF to pop.aca@acer.com: '+v('arcPop'),'==','• Survey Offered: '+v('arcSurvey'));
+  lines.push('Caller Name: '+v('arcCaller'),'Number: '+v('arcPhone'),'Email: '+v('arcEmail'),'==','Call Summary: '+v('arcSummary'),'==','De-escalation: '+v('arcDeescalation'),'==','* Priority Repair: '+v('arcPriority'),'* Discounted Repair Fee (5%): '+v('arcDiscount'),'* Reason for Escalations: '+v('arcEscReason'),'* Resolution Consultation done with: '+v('arcConsult'),'* Transferred to: '+v('arcTransfer'),'==','* Ticket Type: '+v('arcTicket'),'* Repair Type: '+v('arcRepair'),'* Preferred Courier Pick-up Time and Date: '+v('arcPickupTime'),'* Preferred Pick Up and Return Physical Address: '+v('arcAddress'),'==','Disclosure:','* Repair Notice/Data Loss: '+v('arcDataLoss'),'* Take Photos of all side prior shipping: '+v('arcPhotos'),'* Include Accessories: '+v('arcAccessories'),'* Advised to send POP/VOF/POF to pop.aca@acer.com: '+v('arcPop'),'==','• Survey Offered: '+v('arcSurvey'));
  }else{
   defs[arcCurrentStep].forEach(([label,id])=>lines.push(label+': '+(arcVal(id)||'N/A')));
  }
@@ -2771,7 +2814,7 @@ function openSaveLogModal(source){
 }
 function closeSaveLogModal(){const m=document.getElementById('saveLogModal');m.classList.remove('open');m.setAttribute('aria-hidden','true');pendingDocumentationSource=null;}
 function arcAllDocumentation(){
- const defs={problem:[['Fault / Issue','arcFault'],['When did the issue occur?','arcWhen'],['Call Reason','arcReason'],['How can the issue be replicated?','arcReplicate'],['Any recent HW/SW modification/change?','arcChanges']],solution:[['Customer / Retailer troubleshooting done before calling Acer','arcCustomerTS'],['NCC T/S done with the customer','arcNccTS'],['Suspected Parts?','arcParts']],contact:[['Caller Name','arcCaller'],['Number','arcPhone'],['Email','arcEmail'],['Call Summary','arcSummary'],['Priority Repair','arcPriority'],['Discounted Repair Fee (5%)','arcDiscount'],['Reason for Escalations','arcEscReason'],['Resolution Consultation done with','arcConsult'],['Transferred to','arcTransfer'],['Ticket Type','arcTicket'],['Repair Type','arcRepair'],['Preferred Courier Pick-up Time and Date','arcPickupTime'],['Preferred Pick Up and Return Physical Address','arcAddress'],['Repair Notice/Data Loss','arcDataLoss'],['Take Photos of all side prior shipping','arcPhotos'],['Include Accessories','arcAccessories'],['Advised to send POP/VOF/POF to pop.aca@acer.com','arcPop'],['Survey Offered','arcSurvey']]};
+ const defs={problem:[['Fault / Issue','arcFault'],['When did the issue occur?','arcWhen'],['Call Reason','arcReason'],['How can the issue be replicated?','arcReplicate'],['Any recent HW/SW modification/change?','arcChanges']],solution:[['Customer / Retailer troubleshooting done before calling Acer','arcCustomerTS'],['NCC T/S done with the customer','arcNccTS'],['Suspected Parts?','arcParts']],contact:[['Caller Name','arcCaller'],['Number','arcPhone'],['Email','arcEmail'],['Call Summary','arcSummary'],['De-escalation','arcDeescalation'],['Priority Repair','arcPriority'],['Discounted Repair Fee (5%)','arcDiscount'],['Reason for Escalations','arcEscReason'],['Resolution Consultation done with','arcConsult'],['Transferred to','arcTransfer'],['Ticket Type','arcTicket'],['Repair Type','arcRepair'],['Preferred Courier Pick-up Time and Date','arcPickupTime'],['Preferred Pick Up and Return Physical Address','arcAddress'],['Repair Notice/Data Loss','arcDataLoss'],['Take Photos of all side prior shipping','arcPhotos'],['Include Accessories','arcAccessories'],['Advised to send POP/VOF/POF to pop.aca@acer.com','arcPop'],['Survey Offered','arcSurvey']]};
  const heads={problem:'Problem Field Documentation:',solution:'Solutions Field Documentation:',contact:'Contact Log Documentation:'};
  return ['problem','solution','contact'].map((k,i)=>[heads[k],...defs[k].map(([label,id])=>label+': '+(arcVal(id)||'N/A'))].join('\n')).join('\n==\n');
 }
