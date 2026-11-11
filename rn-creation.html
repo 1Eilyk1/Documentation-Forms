@@ -100,8 +100,12 @@ body{padding:10px}
                 <textarea id="rnCustomerMessage" required></textarea>
             </div>
             <div class="rn-field full-width">
-                <label for="rnMyReply">My Reply</label>
-                <textarea id="rnMyReply" required></textarea>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+                    <label for="rnMyReply">My Reply</label>
+                    <button class="rn-btn" type="button" id="rnGenerateReply">✨ GENERATE AI REPLY</button>
+                </div>
+                <textarea id="rnMyReply" required placeholder="Your generated reply will appear here. Review and edit it before saving."></textarea>
+                <div id="rnAIStatus" class="rn-status" role="status" aria-live="polite"></div>
             </div>
         </div>
 
@@ -150,6 +154,64 @@ const pagination = $("rnPagination");
 const pageInfo = $("rnPageInfo");
 const prevButton = $("rnPrevPage");
 const nextButton = $("rnNextPage");
+
+// AI reply connection. Replace this placeholder with your deployed Cloudflare Worker URL.
+const AI_API_URL = "https://rn-ai-reply.jhon-kylie-padilla.workers.dev/";
+const generateReplyButton = $("rnGenerateReply");
+const aiStatus = $("rnAIStatus");
+const myReplyField = $("rnMyReply");
+
+generateReplyButton.addEventListener("click", async () => {
+    const customerMessage = $("rnCustomerMessage").value.trim();
+    const customerName = $("rnCustomerName").value.trim();
+    const rnNumber = $("rnNumber").value.trim();
+
+    if (!customerMessage) {
+        aiStatus.textContent = "Please enter the customer's message first.";
+        $("rnCustomerMessage").focus();
+        return;
+    }
+
+    if (myReplyField.value.trim() &&
+        !confirm("Replace the current My Reply text with a newly generated draft?")) {
+        return;
+    }
+
+    if (AI_API_URL === "PASTE_YOUR_CLOUDFLARE_WORKER_URL_HERE") {
+        aiStatus.textContent = "Connection not configured yet. Add your Cloudflare Worker URL in AI_API_URL.";
+        return;
+    }
+
+    generateReplyButton.disabled = true;
+    generateReplyButton.textContent = "GENERATING...";
+    aiStatus.textContent = "Preparing your draft...";
+
+    try {
+        const response = await fetch(AI_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ customerMessage, customerName, rnNumber })
+        });
+
+        const data = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(data.error || "The AI service could not generate a reply.");
+        }
+        if (!data.reply || typeof data.reply !== "string") {
+            throw new Error("The AI service returned an empty reply.");
+        }
+
+        myReplyField.value = data.reply.trim();
+        myReplyField.dispatchEvent(new Event("input", { bubbles: true }));
+        aiStatus.textContent = "Draft generated. Please review and edit it before saving.";
+    } catch (error) {
+        aiStatus.textContent = "Unable to generate reply: " + error.message;
+    } finally {
+        generateReplyButton.disabled = false;
+        generateReplyButton.textContent = "✨ GENERATE AI REPLY";
+    }
+});
 
 let currentPage = 1;
 let history = loadHistory();
