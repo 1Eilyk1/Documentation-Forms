@@ -97,7 +97,12 @@ body{padding:10px}
             </div>
             <div class="rn-field full-width">
                 <label for="rnCustomerMessage">Customer Message</label>
-                <textarea id="rnCustomerMessage" required></textarea>
+                <textarea id="rnCustomerMessage" required placeholder="Paste the customer's message here..."></textarea>
+            </div>
+            <div class="rn-field full-width">
+                <label for="rnAIPrompt">Additional AI Instructions (Optional)</label>
+                <textarea id="rnAIPrompt" rows="3" placeholder="Tell the AI how you want it to respond. Example: Apologise for the inconvenience, explain that we are checking the repair status, and ask the customer to allow 1–2 business days for an update."></textarea>
+                <small style="display:block;margin-top:6px;opacity:.75;">The AI will review the customer message and use these instructions when drafting your reply. Leave blank to use the standard Acer support instructions.</small>
             </div>
             <div class="rn-field full-width">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -165,6 +170,7 @@ generateReplyButton.addEventListener("click", async () => {
     const customerMessage = $("rnCustomerMessage").value.trim();
     const customerName = $("rnCustomerName").value.trim();
     const rnNumber = $("rnNumber").value.trim();
+    const aiPrompt = $("rnAIPrompt").value.trim();
 
     if (!customerMessage) {
         aiStatus.textContent = "Please enter the customer's message first.";
@@ -190,7 +196,7 @@ generateReplyButton.addEventListener("click", async () => {
         const response = await fetch(AI_API_URL, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ customerMessage, customerName, rnNumber })
+            body: JSON.stringify({ customerMessage, customerName, rnNumber, aiPrompt })
         });
 
         const data = await response.json().catch(() => ({}));
