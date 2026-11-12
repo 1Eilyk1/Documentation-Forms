@@ -2909,31 +2909,55 @@ document.addEventListener("keydown",function(event){
 </button>
 
 <style>
+
 #callSticky {
   position: fixed;
   top: 100px;
+  left: auto;
   right: 25px;
-  width: 320px;
-  max-height: 75vh;
+
+  width: 340px;
+  height: 550px;
+
+  min-width: 260px;
+  min-height: 200px;
+
+  max-width: calc(100vw - 20px);
+  max-height: calc(100vh - 20px);
+
+  resize: both;
+  overflow: hidden;
+
   background: #fff4b8;
   color: #443b20;
-  z-index: 99999;
+
+  z-index: 999999;
   border-radius: 9px;
   box-shadow: 0 12px 35px #0008;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
   border-top: 6px solid #e5c34c;
+
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
 }
 
 #stickyHeader {
+  flex-shrink: 0;
   padding: 13px;
   background: #f5e59c;
+
   display: flex;
   justify-content: space-between;
   align-items: center;
+
   font-weight: bold;
-  cursor: move;
+  cursor: grab;
   user-select: none;
+  touch-action: none;
+}
+
+#stickyHeader:active {
+  cursor: grabbing;
 }
 
 #stickyHeader button {
@@ -2947,7 +2971,8 @@ document.addEventListener("keydown",function(event){
 #stickyBody {
   padding: 13px;
   overflow-y: auto;
-  max-height: calc(75vh - 50px);
+  flex: 1;
+  min-height: 0;
 }
 
 #stickyProgress {
@@ -3016,6 +3041,7 @@ document.addEventListener("keydown",function(event){
 }
 
 .stickyClear {
+  flex-shrink: 0;
   width: 100%;
   padding: 9px;
   border: none;
@@ -3031,7 +3057,7 @@ document.addEventListener("keydown",function(event){
   position: fixed;
   right: 20px;
   bottom: 25px;
-  z-index: 99999;
+  z-index: 999999;
   border: none;
   border-radius: 50%;
   width: 52px;
@@ -3039,7 +3065,6 @@ document.addEventListener("keydown",function(event){
   background: #f3d96e;
   font-size: 22px;
   cursor: pointer;
-  box-shadow: 0 5px 20px #0007;
 }
 </style>
 
@@ -3150,7 +3175,8 @@ function closeSticky() {
   minSticky();
 }
 
-// DRAGGABLE WINDOW
+
+// DRAGGABLE ANYWHERE ON SCREEN
 const note = document.getElementById("callSticky");
 const header = document.getElementById("stickyHeader");
 
@@ -3162,22 +3188,42 @@ header.addEventListener("pointerdown", e => {
   if (e.target.closest("button")) return;
 
   dragging = true;
-  offsetX = e.clientX - note.offsetLeft;
-  offsetY = e.clientY - note.offsetTop;
+
+  const rect = note.getBoundingClientRect();
+
+  offsetX = e.clientX - rect.left;
+  offsetY = e.clientY - rect.top;
+
   header.setPointerCapture(e.pointerId);
 });
 
 header.addEventListener("pointermove", e => {
   if (!dragging) return;
 
-  note.style.left = (e.clientX - offsetX) + "px";
-  note.style.top = (e.clientY - offsetY) + "px";
+  const maxX = window.innerWidth - note.offsetWidth;
+  const maxY = window.innerHeight - note.offsetHeight;
+
+  const x = Math.max(0, Math.min(
+    e.clientX - offsetX, maxX
+  ));
+
+  const y = Math.max(0, Math.min(
+    e.clientY - offsetY, maxY
+  ));
+
+  note.style.left = x + "px";
+  note.style.top = y + "px";
   note.style.right = "auto";
 });
 
 header.addEventListener("pointerup", () => {
   dragging = false;
 });
+
+header.addEventListener("pointercancel", () => {
+  dragging = false;
+});
+
 
 updateSticky();
 </script>
