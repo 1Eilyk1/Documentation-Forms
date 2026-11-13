@@ -2873,7 +2873,12 @@ function confirmSaveDocumentationLog(){
  }else{
    saveOtherForm();const d=otherStorage()[otherType]||{};name=d['Caller Name']||'';email=d['Email']||'';phone=d['Number']||d['Caller Number']||'';summary=otherAllDocumentation();sourceType=otherSchemas[otherType].title;
  }
- const date=selectedDate||dateKey(new Date());if(!documentationData[date])documentationData[date]=[];
+ // Always save new Other Documentation logs under today's date.
+ const date = dateKey(new Date());
+
+ if (!documentationData[date]) {
+     documentationData[date] = [];
+ }
  const duplicate=Object.values(documentationData).flat().some(c=>String(c.reference||'').trim().toLowerCase()===ref.toLowerCase());
  if(duplicate&&!confirm('A call with this reference number already exists. Save another entry anyway?'))return;
  documentationData[date].push({name,reference:ref,email,phone,summary,source:sourceType,createdAt:new Date().toISOString()});
