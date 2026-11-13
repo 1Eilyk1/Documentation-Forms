@@ -986,6 +986,30 @@ function dateKey(date) {
 
     return `${year}-${month}-${day}`;
 }
+   function getTodayKey() {
+    return dateKey(new Date());
+}
+   function updateAddCallAvailability() {
+    const button = document.querySelector(".add-btn");
+    if (!button) return;
+
+    const isToday = selectedDate === getTodayKey();
+    const isEditing = editingCallIndex !== null;
+
+    button.disabled = !isToday && !isEditing;
+
+    if (button.disabled) {
+        button.textContent = "Past Date — View Only";
+        button.style.opacity = "0.45";
+        button.style.cursor = "not-allowed";
+    } else {
+        button.textContent = isEditing
+            ? "Save Changes"
+            : "+ Add Documented Call";
+        button.style.opacity = "1";
+        button.style.cursor = "pointer";
+    }
+}
 
 
 function formatDate(date) {
@@ -1225,6 +1249,7 @@ function openDate(date) {
 
 
     clearForm();
+    updateAddCallAvailability();
 
     renderCallList();
 
@@ -1277,10 +1302,7 @@ function clearForm() {
     editingCallIndex = null;
     editingCallDate = null;
 
-    const saveButton = document.querySelector(".add-btn");
-    if (saveButton) {
-        saveButton.textContent = "+ Add Documented Call";
-    }
+    updateAddCallAvailability();
 }
 
 
@@ -1317,6 +1339,19 @@ function addCall() {
         alert("Please select a date before saving a call.");
         return;
     }
+   // Prevent adding new calls to past dates.
+// Existing historical calls can still be edited.
+if (
+    editingCallIndex === null &&
+    selectedDate !== getTodayKey()
+) {
+    alert(
+        "You can only add new call documentation for the current date. Past dates are view-only."
+    );
+
+    updateAddCallAvailability();
+    return;
+}
 
     if (!documentationData[selectedDate]) {
         documentationData[selectedDate] = [];
@@ -1560,10 +1595,7 @@ function editCall(index) {
     summary.value = call.summary || "";
     autoResize(summary);
 
-    const saveButton = document.querySelector(".add-btn");
-    if (saveButton) {
-        saveButton.textContent = "Save Changes";
-    }
+    updateAddCallAvailability();
 
     const formSection = document.querySelector("#modalOverlay .form-section");
     if (formSection) {
