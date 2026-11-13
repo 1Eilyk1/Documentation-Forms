@@ -2609,6 +2609,7 @@ function showDashboardTab(){
   const nav=document.querySelector('.side-link'); if(nav)nav.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
+  window.showDashboardTab = showDashboardTab;
 
 function renderDashboardExtras() {
     const all = [];
