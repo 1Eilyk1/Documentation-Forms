@@ -345,22 +345,27 @@ body::after{right:-30vw;transform:translateY(-50%) rotate(5deg);border:2px solid
 <body>
 <div class="neon-edge-orbit" aria-hidden="true"><div class="neon-loop"></div></div>
 <div class="container">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px">
-    <div>
-      <h1>POP / POF Validation</h1>
-      <div class="subtitle">Review documents, validate each image, and download the selected evidence as a PDF.</div>
+  
+<div style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:8px">
+  <div style="flex:1;min-width:250px">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <h1 style="margin:0">POP / POF Validation</h1>
+      <button type="button" class="secondary"
+        onclick="window.location.href='index.html'">
+        ← Back to Dashboard
+      </button>
     </div>
-   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <div class="subtitle">Review documents, validate each image, and download the selected evidence as a PDF.</div>
+  </div>
 
-<button type="button" class="secondary"
-onclick="window.location.href='index.html'">
-← Back to Dashboard
-</button>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <button type="button" class="secondary" id="exportAllDataBtn"
+      title="Export app settings, templates, drafts and current form data">
+      Export All Data
+    </button>
+  </div>
+</div>
 
-<button type="button" class="secondary" id="exportAllDataBtn"
-title="Export app settings, templates, drafts and current form data">
-Export All Data
-</button>
 
   <div class="app-tabs" role="tablist" aria-label="Program sections">
     <button type="button" class="app-tab active" id="validationTabBtn" role="tab" aria-selected="true">Validation</button>
