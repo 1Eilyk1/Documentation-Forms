@@ -132,6 +132,9 @@ input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1);opacity:1
 #ocrOverlay .ocr-word{position:absolute;display:block;color:transparent;opacity:1;white-space:pre;line-height:1.25;pointer-events:auto;user-select:text;-webkit-user-select:text;cursor:text;overflow:visible;padding:2px 0;box-sizing:content-box;}
 #ocrOverlay .ocr-word::selection{background:rgba(35,115,255,.72);color:transparent;}
 #ocrOverlay .ocr-word::-moz-selection{background:rgba(35,115,255,.72);color:transparent;}
+#ocrOverlay .ocr-line{white-space:pre;display:block;min-width:2px;cursor:text;user-select:text;-webkit-user-select:text;pointer-events:auto;letter-spacing:0;transform-origin:left top;}
+#ocrOverlay .ocr-line::selection{background:rgba(35,115,255,.78);color:transparent;}
+#ocrOverlay .ocr-line::-moz-selection{background:rgba(35,115,255,.78);color:transparent;}
 /* Keep the preview image constrained to the viewer. Zoom changes only its visual scale,
    so it stays inside the preview tab instead of expanding to its full source dimensions. */
 #mainImage.native-pixel-view{max-width:100%;max-height:520px;width:auto;height:auto;object-fit:contain;image-rendering:auto;}
@@ -342,8 +345,6 @@ body::after{right:-30vw;transform:translateY(-50%) rotate(5deg);border:2px solid
 <body>
 <div class="neon-edge-orbit" aria-hidden="true"><div class="neon-loop"></div></div>
 <div class="container">
-  <div style="margin:0 0 14px;display:flex;justify-content:flex-start"><button type="button" onclick="window.location.href='index.html'" style="padding:9px 14px;border:1px solid #38516e;border-radius:9px;background:#172438;color:#e8edf5;font-weight:700;cursor:pointer">← Back to Dashboard</button></div>
-
   <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:8px">
     <div>
       <h1>POP / POF Validation</h1>
@@ -489,6 +490,7 @@ body::after{right:-30vw;transform:translateY(-50%) rotate(5deg);border:2px solid
       <select id="validTemplateSelect">
         <option value="reviewed">POP / POF Valid — Invoice and Proof-of-Fault Reviewed</option>
         <option value="general">General Acknowledgement</option>
+        <option value="mailboxNotice">POP Mailbox — Documentation Only Notice</option>
       </select>
       <div id="reviewedCaseIdWrap" style="display:none;margin-top:10px">
         <label for="reviewedCaseId">Case ID for reviewed invoice / proof-of-fault response</label>
@@ -1075,6 +1077,26 @@ function buildPOPSightedMessage() {
 
 function buildValidResponse() {
   const selectedTemplate = $("validTemplateSelect")?.value || "general";
+  if (selectedTemplate === "mailboxNotice") {
+    return `Dear Customer,
+
+I hope this email finds you well.
+
+Thank you for reaching out to Acer Customer Support. Your inquiry is important to us, and we are committed to providing you with the best assistance possible.
+
+To streamline our communication process, I would like to inform you that the email address pop.aca@acer.com is designated solely for receiving supporting information and documentation requested by our Acer Customer Support Team for existing cases or repair devices.
+
+This includes requested Proof of Purchase, Proof of Fault, photos, videos, and other supporting documentation or troubleshooting details. Any correspondence unrelated to these purposes may be disregarded or redirected to the appropriate department.
+
+For prompt and efficient assistance with your concerns, please contact us directly at 1300 365 100 (AU) / 0800 862 237 (NZ). Our dedicated team is available to address any questions or issues you may have.
+
+Thank you for your understanding and cooperation in this matter. We value your partnership and aim to provide you with the best service possible.
+
+NOTE: Please DO NOT REPLY to this email as this mailbox is not monitored for general inquiries.
+
+Warm regards,
+Acer Customer Support Team`;
+  }
   if (selectedTemplate === "reviewed") {
     return `Good day!
 
@@ -1826,40 +1848,55 @@ function renderSelectableOcrWords(words) {
   overlay.style.width = "100%";
   overlay.style.height = "100%";
 
-  // Group words into visual text rows. Giving each word the whitespace up to
-  // the next word makes spaces selectable/copyable instead of creating gaps.
+  // Build one selectable text layer per visual line (instead of tiny word boxes).
+  // This makes mouse-drag selection much closer to Google Lens: users can sweep
+  // across a whole line, including the spaces between recognized words.
   const sorted = words.filter(w => w && w.text && w.bbox)
     .slice().sort((a,b) => (a.bbox.y0+a.bbox.y1) - (b.bbox.y0+b.bbox.y1) || a.bbox.x0-b.bbox.x0);
   const rows = [];
   for (const word of sorted) {
-    const b = word.bbox, mid = (b.y0+b.y1)/2, h = b.y1-b.y0;
+    const b = word.bbox;
+    const mid = (b.y0+b.y1)/2;
+    const h = Math.max(1,b.y1-b.y0);
     let row = rows.find(r => Math.abs(r.mid-mid) <= Math.max(r.height,h)*0.55);
-    if (!row) { row={mid,height:h,words:[]}; rows.push(row); }
-    row.words.push(word); row.mid = row.words.reduce((sum,w)=>sum+(w.bbox.y0+w.bbox.y1)/2,0)/row.words.length;
+    if (!row) {
+      row = { mid, height:h, words:[], y0:b.y0, y1:b.y1, x0:b.x0, x1:b.x1 };
+      rows.push(row);
+    }
+    row.words.push(word);
+    row.y0 = Math.min(row.y0,b.y0);
+    row.y1 = Math.max(row.y1,b.y1);
+    row.x0 = Math.min(row.x0,b.x0);
+    row.x1 = Math.max(row.x1,b.x1);
+    row.mid = row.words.reduce((sum,w)=>sum+(w.bbox.y0+w.bbox.y1)/2,0)/row.words.length;
     row.height = Math.max(row.height,h);
   }
   rows.sort((a,b)=>a.mid-b.mid);
+
   for (const row of rows) {
     row.words.sort((a,b)=>a.bbox.x0-b.bbox.x0);
-    row.words.forEach((word,index) => {
-      const b = word.bbox;
-      const next = row.words[index+1];
-      const h = Math.max(1,b.y1-b.y0);
-      const gap = next ? Math.max(0,next.bbox.x0-b.x1) : 0;
-      const addSpace = !!next && gap > h*0.12;
-      const span = document.createElement("span");
-      span.className = "ocr-word";
-      span.textContent = word.text + (addSpace ? " " : "");
-      span.title = "Drag to highlight recognized text and press Ctrl+C";
-      // Extend the selectable box through the inter-word gap and give it
-      // extra vertical room so the browser's blue selection isn't clipped.
-      span.style.left = `${(b.x0 / img.naturalWidth) * 100}%`;
-      span.style.top = `${(Math.max(0,b.y0-2) / img.naturalHeight) * 100}%`;
-      span.style.width = `${(Math.max(1,b.x1-b.x0 + (addSpace ? gap : 0)) / img.naturalWidth) * 100}%`;
-      span.style.height = `${((h+4) / img.naturalHeight) * 100}%`;
-      span.style.fontSize = `${Math.max(6, h * img.clientHeight / img.naturalHeight)}px`;
-      overlay.appendChild(span);
-    });
+    const lineText = row.words.map(w=>String(w.text).trim()).filter(Boolean).join(" ");
+    if (!lineText) continue;
+    const line = document.createElement("span");
+    line.className = "ocr-word ocr-line";
+    line.textContent = lineText;
+    line.title = "Drag across this line to highlight it, then press Ctrl+C";
+    const padX = Math.max(3,row.height*0.16);
+    const padY = Math.max(2,row.height*0.12);
+    const left = Math.max(0,row.x0-padX);
+    const top = Math.max(0,row.y0-padY);
+    const width = Math.min(img.naturalWidth-left,(row.x1-row.x0)+padX*2);
+    const height = Math.min(img.naturalHeight-top,(row.y1-row.y0)+padY*2);
+    line.style.left = `${(left / img.naturalWidth) * 100}%`;
+    line.style.top = `${(top / img.naturalHeight) * 100}%`;
+    line.style.width = `${(Math.max(1,width) / img.naturalWidth) * 100}%`;
+    line.style.height = `${(Math.max(1,height) / img.naturalHeight) * 100}%`;
+    line.style.fontSize = `${Math.max(7,row.height * img.clientHeight / img.naturalHeight)}px`;
+    line.style.lineHeight = "1";
+    line.style.padding = "0";
+    line.style.boxSizing = "border-box";
+    line.style.overflow = "visible";
+    overlay.appendChild(line);
   }
 }
 async function recognizePreviewText(img) {
@@ -1879,13 +1916,42 @@ async function recognizePreviewText(img) {
   const overlay = $("ocrOverlay");
   if (overlay) overlay.innerHTML = "";
   try {
-    const result = await window.Tesseract.recognize(source, "eng");
+    // Try all four orientations. Receipt photos are often captured sideways or upside down.
+    // OCR runs on a rotated canvas, then every word box is mapped back to the original image.
+    const w = img.naturalWidth, h = img.naturalHeight;
+    const attempts = [];
+    for (const angle of [0, 90, 180, 270]) {
+      const canvas = document.createElement("canvas");
+      canvas.width = (angle === 90 || angle === 270) ? h : w;
+      canvas.height = (angle === 90 || angle === 270) ? w : h;
+      const ctx = canvas.getContext("2d");
+      ctx.translate(canvas.width / 2, canvas.height / 2);
+      ctx.rotate(angle * Math.PI / 180);
+      ctx.drawImage(img, -w / 2, -h / 2, w, h);
+      const result = await window.Tesseract.recognize(canvas, "eng");
+      const data = result && result.data ? result.data : {};
+      const found = Array.isArray(data.words) ? data.words.filter(x => x && x.text && x.bbox) : [];
+      const confidence = found.length ? found.reduce((sum,x)=>sum+(Number(x.confidence)||0),0)/found.length : 0;
+      attempts.push({angle, words:found, score:confidence * Math.sqrt(found.length)});
+    }
+    attempts.sort((a,b)=>b.score-a.score);
+    const best = attempts[0] || {angle:0,words:[]};
+    const words = best.words.map(word => {
+      const b = word.bbox;
+      let x0,y0,x1,y1;
+      if (best.angle === 90) { x0=b.y0; x1=b.y1; y0=h-b.x1; y1=h-b.x0; }
+      else if (best.angle === 180) { x0=w-b.x1; x1=w-b.x0; y0=h-b.y1; y1=h-b.y0; }
+      else if (best.angle === 270) { x0=w-b.y1; x1=w-b.y0; y0=b.x0; y1=b.x1; }
+      else { x0=b.x0; y0=b.y0; x1=b.x1; y1=b.y1; }
+      return {...word, bbox:{x0,y0,x1,y1}};
+    });
     // Ignore results if the user changed to another image while OCR was running.
-    const words = result && result.data && Array.isArray(result.data.words) ? result.data.words : [];
     if (img.isConnected && $("mainImage") === img && img.src === source) {
       window.lastOcrForSrc = source;
       window.lastOcrWords = words;
       renderSelectableOcrWords(words);
+      const status = $("ocrStatus");
+      if (status) status.textContent = words.length ? `Text ready — ${words.length} words detected. Drag to highlight and Ctrl+C to copy.` : "No readable text detected. Try a clearer or closer photo.";
     }
   } catch (error) {
     console.warn("Automatic OCR failed:", error);
@@ -2340,14 +2406,6 @@ document.getElementById("newTemplateBtn").addEventListener("click",createNewTemp
   setInterval(()=>{updateStopwatch();updateCountdown();},250);
   updateStopwatch();updateCountdown();updateVof();
 })();
-
-// Open the Pre-Quote tab directly when navigated from the dashboard sidebar.
-if (window.location.hash === "#pre-quote") {
-  window.addEventListener("DOMContentLoaded", function () {
-    const preQuoteButton = document.getElementById("preQuoteTabBtn");
-    if (preQuoteButton) preQuoteButton.click();
-  });
-}
 </script>
 
 </body>
