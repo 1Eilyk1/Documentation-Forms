@@ -63,12 +63,15 @@ button:disabled{opacity:.45;cursor:not-allowed}
 #ocrStatus{color:#aaa;font-size:12px;margin-top:8px;min-height:16px}
 .review-info{color:#aaa;font-size:14px;margin-bottom:12px}
 .result-list{max-height:430px;overflow:auto}
-.result-row{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #2d2d2d;cursor:pointer;transition:background .15s,border-color .15s}
+.result-row{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #2d2d2d;cursor:pointer;transition:background .15s,border-color .15s,transform .24s cubic-bezier(.2,.75,.25,1);will-change:transform}
 .result-row.drag-over{border-top:3px solid #54a6ff;background:rgba(65,145,255,.13)}
 .drag-handle{width:24px;min-width:24px;height:32px;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:#8995a5;cursor:grab;padding:0;touch-action:none}
 .drag-handle:active{cursor:grabbing}
 .drag-handle svg{width:16px;height:20px;display:block}
-.result-row.dragging{opacity:.38}
+.result-row.dragging{opacity:.78;z-index:5;position:relative;box-shadow:0 12px 30px rgba(0,0,0,.38);border:1px solid rgba(84,166,255,.7);background:rgba(35,55,82,.96)}
+.result-row{transition:transform .18s cubic-bezier(.2,.75,.25,1),background .15s,border-color .15s;will-change:transform}
+.result-list.is-reordering .result-row{user-select:none}
+.drag-handle{touch-action:none}
 .result-row:hover{background:#242424}
 .result-row.active{background:#222b38}
 .thumb{width:52px;height:42px;object-fit:cover;border-radius:5px;background:#000}
@@ -1263,37 +1266,73 @@ function renderResults() {
     `;
 
     const handle = row.querySelector(".drag-handle");
+    // Pointer-based live sorting: neighboring rows animate out of the way while dragging.
+    handle.draggable = false;
     handle.addEventListener("click", e => e.stopPropagation());
-    handle.addEventListener("dragstart", e => {
+    handle.addEventListener("pointerdown", e => {
+      if (e.button !== 0) return;
+      e.preventDefault();
       e.stopPropagation();
-      e.dataTransfer.effectAllowed = "move";
-      e.dataTransfer.setData("text/plain", String(index));
-      row.classList.add("dragging");
-    });
-    handle.addEventListener("dragend", () => {
-      row.classList.remove("dragging");
-      resultList.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
-    });
-    row.addEventListener("dragover", e => {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = "move";
-      resultList.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
-      row.classList.add("drag-over");
-    });
-    row.addEventListener("dragleave", e => {
-      if (!row.contains(e.relatedTarget)) row.classList.remove("drag-over");
-    });
-    row.addEventListener("drop", e => {
-      e.preventDefault();
-      row.classList.remove("drag-over");
-      const from = Number(e.dataTransfer.getData("text/plain"));
-      const to = index;
-      if (!Number.isInteger(from) || from < 0 || from >= state.images.length || from === to) return;
-      const currentItem = state.images[state.currentIndex];
-      const [moved] = state.images.splice(from, 1);
-      state.images.splice(to, 0, moved);
-      state.currentIndex = Math.max(0, state.images.indexOf(currentItem));
-      render();
+      const draggedRow = row;
+      const startY = e.clientY;
+      let moved = false;
+      const originalIndex = Number(draggedRow.dataset.index);
+      draggedRow.classList.add("dragging");
+      resultList.classList.add("is-reordering");
+      handle.setPointerCapture?.(e.pointerId);
+
+      const animateLayout = (beforeRects) => {
+        const rows = [...resultList.querySelectorAll(".result-row")];
+        rows.forEach(el => {
+          const before = beforeRects.get(el);
+          if (!before) return;
+          const after = el.getBoundingClientRect();
+          const dy = before.top - after.top;
+          if (Math.abs(dy) < 1) return;
+          el.style.transition = "none";
+          el.style.transform = `translateY(${dy}px)`;
+          requestAnimationFrame(() => {
+            el.style.transition = "";
+            el.style.transform = "";
+          });
+        });
+      };
+
+      const onMove = ev => {
+        if (ev.pointerId !== e.pointerId) return;
+        if (Math.abs(ev.clientY - startY) > 3) moved = true;
+        if (!moved) return;
+        const target = document.elementFromPoint(ev.clientX, ev.clientY)?.closest(".result-row");
+        if (!target || target === draggedRow || !resultList.contains(target)) return;
+        const rects = new Map([...resultList.querySelectorAll(".result-row")].map(el => [el, el.getBoundingClientRect()]));
+        const bounds = target.getBoundingClientRect();
+        const insertAfter = ev.clientY > bounds.top + bounds.height / 2;
+        if (insertAfter) {
+          if (target.nextElementSibling !== draggedRow) resultList.insertBefore(draggedRow, target.nextElementSibling);
+        } else {
+          if (target !== draggedRow.nextElementSibling) resultList.insertBefore(draggedRow, target);
+        }
+        animateLayout(rects);
+      };
+
+      const finish = ev => {
+        if (ev.pointerId !== e.pointerId) return;
+        document.removeEventListener("pointermove", onMove);
+        document.removeEventListener("pointerup", finish);
+        document.removeEventListener("pointercancel", finish);
+        draggedRow.classList.remove("dragging");
+        resultList.classList.remove("is-reordering");
+        if (moved) {
+          const orderedOriginalIndexes = [...resultList.querySelectorAll(".result-row")].map(el => Number(el.dataset.index));
+          const currentItem = state.images[state.currentIndex];
+          state.images = orderedOriginalIndexes.map(i => state.images[i]);
+          state.currentIndex = Math.max(0, state.images.indexOf(currentItem));
+          render();
+        }
+      };
+      document.addEventListener("pointermove", onMove);
+      document.addEventListener("pointerup", finish);
+      document.addEventListener("pointercancel", finish);
     });
 
     row.addEventListener("click", e => {
