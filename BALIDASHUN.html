@@ -63,7 +63,12 @@ button:disabled{opacity:.45;cursor:not-allowed}
 #ocrStatus{color:#aaa;font-size:12px;margin-top:8px;min-height:16px}
 .review-info{color:#aaa;font-size:14px;margin-bottom:12px}
 .result-list{max-height:430px;overflow:auto}
-.result-row{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #2d2d2d;cursor:pointer}
+.result-row{display:flex;align-items:center;gap:8px;padding:10px;border-bottom:1px solid #2d2d2d;cursor:pointer;transition:background .15s,border-color .15s}
+.result-row.drag-over{border-top:3px solid #54a6ff;background:rgba(65,145,255,.13)}
+.drag-handle{width:24px;min-width:24px;height:32px;display:flex;align-items:center;justify-content:center;border:0;background:transparent;color:#8995a5;cursor:grab;padding:0;touch-action:none}
+.drag-handle:active{cursor:grabbing}
+.drag-handle svg{width:16px;height:20px;display:block}
+.result-row.dragging{opacity:.38}
 .result-row:hover{background:#242424}
 .result-row.active{background:#222b38}
 .thumb{width:52px;height:42px;object-fit:cover;border-radius:5px;background:#000}
@@ -1243,27 +1248,59 @@ $("rotateImageBtn").addEventListener("click", () => {
 
 function renderResults() {
   resultList.innerHTML = "";
-
   state.images.forEach((item, index) => {
     const row = document.createElement("div");
     row.className = "result-row" + (index === state.currentIndex ? " active" : "");
+    row.dataset.index = String(index);
     row.innerHTML = `
+      <button class="drag-handle" type="button" draggable="true" aria-label="Drag to reorder image" title="Drag to reorder" tabindex="0">
+        <svg viewBox="0 0 16 20" aria-hidden="true"><path d="M3 4h10M3 10h10M3 16h10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
       <img class="thumb" src="${item.src}">
-      <div class="result-text">
-        <div>${escapeHTML(item.name)}</div>
-      </div>
-      <span class="badge ${item.status === "valid" ? "valid" : item.status === "invalid" ? "invalid" : ""}">
-        ${item.status.toUpperCase()}
-      </span>
+      <div class="result-text"><div>${escapeHTML(item.name)}</div></div>
+      <span class="badge ${item.status === "valid" ? "valid" : item.status === "invalid" ? "invalid" : ""}">${item.status.toUpperCase()}</span>
       <button class="secondary remove-btn" type="button">Remove</button>
     `;
 
-    row.addEventListener("click", e => {
-      if (e.target.closest(".remove-btn")) return;
-      state.currentIndex = index;
+    const handle = row.querySelector(".drag-handle");
+    handle.addEventListener("click", e => e.stopPropagation());
+    handle.addEventListener("dragstart", e => {
+      e.stopPropagation();
+      e.dataTransfer.effectAllowed = "move";
+      e.dataTransfer.setData("text/plain", String(index));
+      row.classList.add("dragging");
+    });
+    handle.addEventListener("dragend", () => {
+      row.classList.remove("dragging");
+      resultList.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+    });
+    row.addEventListener("dragover", e => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      resultList.querySelectorAll(".drag-over").forEach(el => el.classList.remove("drag-over"));
+      row.classList.add("drag-over");
+    });
+    row.addEventListener("dragleave", e => {
+      if (!row.contains(e.relatedTarget)) row.classList.remove("drag-over");
+    });
+    row.addEventListener("drop", e => {
+      e.preventDefault();
+      row.classList.remove("drag-over");
+      const from = Number(e.dataTransfer.getData("text/plain"));
+      const to = index;
+      if (!Number.isInteger(from) || from < 0 || from >= state.images.length || from === to) return;
+      const currentItem = state.images[state.currentIndex];
+      const [moved] = state.images.splice(from, 1);
+      state.images.splice(to, 0, moved);
+      state.currentIndex = Math.max(0, state.images.indexOf(currentItem));
       render();
     });
 
+    row.addEventListener("click", e => {
+      if (e.target.closest(".remove-btn, .drag-handle")) return;
+      state.currentIndex = index;
+      render();
+    });
     row.querySelector(".remove-btn").addEventListener("click", e => {
       e.stopPropagation();
       const label = state.validationType === "pofVideo" ? "screenshot" : "picture";
@@ -1272,7 +1309,6 @@ function renderResults() {
       if (state.currentIndex >= state.images.length) state.currentIndex = Math.max(0, state.images.length - 1);
       render();
     });
-
     resultList.appendChild(row);
   });
 }
