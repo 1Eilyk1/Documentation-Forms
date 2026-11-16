@@ -363,6 +363,15 @@ body::after{right:-30vw;transform:translateY(-50%) rotate(5deg);border:2px solid
       title="Export app settings, templates, drafts and current form data">
       Export All Data
     </button>
+    <button type="button" class="secondary" id="importAllDataBtn"
+      title="Restore app settings, templates, drafts and form data from a backup">
+      Import Backup
+    </button>
+    <input id="importAllDataFile" type="file" accept="application/json,.json" style="display:none">
+    <button class="danger" id="clearBtnTop" type="button"
+      title="Clear validation evidence and results (Shift + F1)">
+      🗑 Clear All <span style="font-size:11px;opacity:.8">(Shift + F1)</span>
+    </button>
   </div>
 </div>
 
