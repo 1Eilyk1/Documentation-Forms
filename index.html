@@ -180,7 +180,11 @@
       repeating-linear-gradient(90deg,rgba(30,68,116,.10) 0 1px,transparent 1px 34px),
       linear-gradient(135deg,#02040b,#061026 52%,#09051a);
       animation:neonDrift 18s ease-in-out infinite alternate; }
-    .app-sidebar { position:fixed!important; z-index:30; inset:18px auto 18px 18px; width:208px; display:flex; flex-direction:column; gap:8px; padding:20px 13px; border:1px solid rgba(64,154,255,.38); border-radius:20px; background:linear-gradient(180deg,rgba(3,12,30,.91),rgba(5,10,27,.83)); backdrop-filter:blur(24px); box-shadow:0 0 35px rgba(0,111,255,.12),0 20px 60px #0008; }
+    .app-sidebar { position:fixed!important; z-index:30; inset:18px auto 18px 18px; width:208px; display:flex; flex-direction:column; gap:8px; padding:20px 13px; min-height:0; max-height:calc(100vh - 36px); overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(80,170,230,.72) rgba(8,20,39,.35); border:1px solid rgba(64,154,255,.38); border-radius:20px; background:linear-gradient(180deg,rgba(3,12,30,.91),rgba(5,10,27,.83)); backdrop-filter:blur(24px); box-shadow:0 0 35px rgba(0,111,255,.12),0 20px 60px #0008; }
+    .app-sidebar::-webkit-scrollbar { width:7px; }
+    .app-sidebar::-webkit-scrollbar-track { background:rgba(8,20,39,.35); border-radius:10px; }
+    .app-sidebar::-webkit-scrollbar-thumb { background:rgba(80,170,230,.72); border-radius:10px; }
+    .app-sidebar::-webkit-scrollbar-thumb:hover { background:rgba(0,217,255,.9); }
     .side-brand { display:flex; align-items:center; gap:10px; padding:4px 8px 23px; border-bottom:1px solid rgba(91,151,225,.18); margin-bottom:12px; }
     .brand-mark { font-size:27px; filter:drop-shadow(0 0 10px #00d9ff); }
     .side-brand strong { display:block; color:#f3f8ff; font-size:14px; }
