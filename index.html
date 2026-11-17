@@ -53,6 +53,8 @@
     .modal-header h2 { font-size:20px; }
     .close-btn { border:1px solid #34445c; background:#1b2739; color:#dbeafe; width:35px; height:35px; border-radius:50%; font-size:20px; cursor:pointer; }
     .close-btn:hover { background:#27364d; }
+    .next-day-btn { border:1px solid rgba(0,217,255,.42); background:linear-gradient(110deg,rgba(0,126,167,.34),rgba(95,65,190,.32)); color:#c9f8ff; padding:9px 15px; border-radius:9px; font-size:12px; font-weight:700; cursor:pointer; transition:.2s; }
+    .next-day-btn:hover { background:linear-gradient(110deg,rgba(0,160,190,.5),rgba(115,75,210,.48)); border-color:#00e5ff; box-shadow:0 0 16px rgba(0,217,255,.16); }
     .modal-body { padding:25px; }
     .form-section { background:#121a27; border:1px solid #263244; border-radius:14px; padding:20px; margin-bottom:20px; }
     .section-title { font-size:14px; font-weight:bold; color:#b9c7d9; margin-bottom:15px; text-transform:uppercase; letter-spacing:.4px; }
@@ -71,6 +73,23 @@
     .call-item { border:1px solid #293548; border-radius:12px; padding:15px; background:#0e1622; }
     .call-item-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
     .call-number { font-weight:bold; color:#93c5fd; }
+   .edit-btn {
+    border: 1px solid #2563eb;
+    background: #172b4d;
+    color: #93c5fd;
+    padding: 6px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: bold;
+   }
+
+.edit-btn:hover {
+    background: #1e40af;
+    color: white;
+}
+    .move-btn { border:1px solid #256b62; background:#12312f; color:#99f6e4; padding:6px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; }
+    .move-btn:hover { background:#155e56; color:white; }
     .delete-btn { border:1px solid #5b3035; background:#321b21; color:#fca5a5; padding:6px 10px; border-radius:7px; cursor:pointer; font-size:12px; font-weight:bold; }
     .delete-btn:hover { background:#482027; }
     .call-info { display:grid; grid-template-columns:repeat(2,1fr); gap:7px 15px; font-size:13px; color:#c8d2df; }
@@ -180,11 +199,7 @@
       repeating-linear-gradient(90deg,rgba(30,68,116,.10) 0 1px,transparent 1px 34px),
       linear-gradient(135deg,#02040b,#061026 52%,#09051a);
       animation:neonDrift 18s ease-in-out infinite alternate; }
-    .app-sidebar { position:fixed!important; z-index:30; inset:18px auto 18px 18px; width:208px; display:flex; flex-direction:column; gap:8px; padding:20px 13px; min-height:0; max-height:calc(100vh - 36px); overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; scrollbar-width:thin; scrollbar-color:rgba(80,170,230,.72) rgba(8,20,39,.35); border:1px solid rgba(64,154,255,.38); border-radius:20px; background:linear-gradient(180deg,rgba(3,12,30,.91),rgba(5,10,27,.83)); backdrop-filter:blur(24px); box-shadow:0 0 35px rgba(0,111,255,.12),0 20px 60px #0008; }
-    .app-sidebar::-webkit-scrollbar { width:7px; }
-    .app-sidebar::-webkit-scrollbar-track { background:rgba(8,20,39,.35); border-radius:10px; }
-    .app-sidebar::-webkit-scrollbar-thumb { background:rgba(80,170,230,.72); border-radius:10px; }
-    .app-sidebar::-webkit-scrollbar-thumb:hover { background:rgba(0,217,255,.9); }
+    .app-sidebar { position:fixed!important; z-index:30; inset:18px auto 18px 18px; width:208px; display:flex; flex-direction:column; gap:8px; padding:20px 13px; border:1px solid rgba(64,154,255,.38); border-radius:20px; background:linear-gradient(180deg,rgba(3,12,30,.91),rgba(5,10,27,.83)); backdrop-filter:blur(24px); box-shadow:0 0 35px rgba(0,111,255,.12),0 20px 60px #0008; }
     .side-brand { display:flex; align-items:center; gap:10px; padding:4px 8px 23px; border-bottom:1px solid rgba(91,151,225,.18); margin-bottom:12px; }
     .brand-mark { font-size:27px; filter:drop-shadow(0 0 10px #00d9ff); }
     .side-brand strong { display:block; color:#f3f8ff; font-size:14px; }
@@ -201,7 +216,7 @@
     .header p { font-size:12px; }
     .header::before { content:""; position:absolute; inset:0; background:linear-gradient(90deg,transparent,rgba(0,207,255,.04),rgba(171,66,255,.08)); pointer-events:none; }
     .today-btn { padding:10px 16px; }
-    .data-toolbar { margin:12px 0 0; padding:0; max-width:none; justify-content:flex-end; }
+    .data-toolbar { margin:12px 0 0; padding:0; max-width:none; justify-content:flex-end; flex-wrap:wrap; gap:8px; }
     .toolbar-btn { padding:8px 12px; font-size:11px; }
     .search-panel { max-width:none; margin:12px 0 16px; padding:0; }
     .search-card { padding:14px 16px; border-radius:14px; }
@@ -441,6 +456,32 @@
 .other-card{color:#cbd5e1}
 @media(max-width:760px){.arc-caller-row{grid-template-columns:1fr;gap:12px}}
 
+
+/* Sidebar overflow fix: keep every navigation item reachable on short/narrow windows. */
+.app-sidebar{box-sizing:border-box;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(73,190,255,.55) transparent;min-height:0;padding-bottom:14px}
+.app-sidebar::-webkit-scrollbar{width:5px}
+.app-sidebar::-webkit-scrollbar-thumb{background:rgba(73,190,255,.45);border-radius:8px}
+.app-sidebar .side-brand,.app-sidebar .side-link,.app-sidebar .side-safe{flex-shrink:0;min-width:0}
+.app-sidebar .side-link{box-sizing:border-box;width:100%;min-height:48px;line-height:1.25;white-space:normal;overflow-wrap:anywhere}
+.app-sidebar .side-link span{flex:0 0 20px}
+.app-sidebar .side-spacer{flex:0 0 8px;min-height:8px}
+.app-sidebar .side-safe{margin-top:4px}
+@media(max-height:850px) and (min-width:801px){.app-sidebar{gap:6px;padding-top:12px;padding-bottom:12px}.app-sidebar .side-brand{padding-bottom:14px;margin-bottom:6px}.app-sidebar .side-link{min-height:44px;padding:9px 10px}}
+
+
+/* Compact RTB/Mail-in Contact Log layout */
+#arcContact .arc-grid{gap:9px 12px}
+#arcContact .arc-subtitle{margin:7px 0 1px;padding:8px 11px}
+#arcContact .arc-field{gap:4px}
+#arcContact .arc-field input,
+#arcContact .arc-field select{min-height:36px;padding:7px 10px}
+#arcContact .arc-field textarea{min-height:58px;height:58px;padding:8px 10px;resize:vertical}
+#arcContact .compact-summary textarea{min-height:68px;height:68px}
+#arcContact .arc-caller-row{gap:9px}
+
+
+/* Open Case Tracker - isolated styles */
+.case-tracker-page{display:none;margin:8px 0 24px}.case-tracker-page.active{display:block}.ct-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.ct-head h2{margin:0;color:#edf7ff}.ct-head p{margin:5px 0 0;color:#91a9c9;font-size:13px}.ct-actions{display:flex;gap:8px;flex-wrap:wrap}.ct-btn{border:1px solid #42618a;background:#152944;color:#eaf5ff;border-radius:9px;padding:10px 14px;cursor:pointer}.ct-btn.primary{background:linear-gradient(120deg,#176b87,#3157a0);border-color:#4b9cce}.ct-tabs{display:flex;gap:8px;margin:14px 0}.ct-panel{padding:18px;border:1px solid rgba(105,160,220,.23);border-radius:16px;background:linear-gradient(135deg,rgba(12,25,47,.9),rgba(19,15,42,.82))}.ct-list{display:grid;gap:10px}.ct-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;border:1px solid #2d4565;border-radius:12px;background:#101d30}.ct-item strong{color:#edf7ff}.ct-item small{display:block;color:#91a9c9;margin-top:5px}.ct-item-actions{display:flex;gap:6px;flex-wrap:wrap}.ct-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.ct-form label{display:grid;gap:6px;color:#a9bed9;font-size:12px}.ct-form input,.ct-form textarea{width:100%;box-sizing:border-box;background:#091525;color:#f1f6ff;border:1px solid #40536e;border-radius:8px;padding:10px}.ct-form .wide{grid-column:1/-1}.ct-empty{color:#91a9c9;padding:20px;text-align:center}@media(max-width:650px){.ct-form{grid-template-columns:1fr}.ct-form .wide{grid-column:auto}.ct-item{align-items:flex-start;flex-direction:column}}
 </style>
 <style>
 /* FINAL RTB / Mail In / PRR dark-theme normalization */
@@ -464,21 +505,18 @@
 .arc-shell .arc-panel button,.arc-shell .arc-top button{color:#edf4ff}
 .arc-shell .arc-preview pre,.arc-shell .arc-output pre{color:#e5efff !important}
 .arc-shell .arc-muted,.arc-shell small{color:#a9bad2 !important}
-
-/* Open Case Tracker */
-.case-tracker-page{display:none;margin:8px 0 24px}.case-tracker-page.active{display:block}.ct-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}.ct-head h2{margin:0;color:#edf7ff}.ct-head p{margin:5px 0 0;color:#91a9c9;font-size:13px}.ct-actions{display:flex;gap:8px;flex-wrap:wrap}.ct-btn{border:1px solid #42618a;background:#152944;color:#eaf5ff;border-radius:9px;padding:10px 14px;cursor:pointer}.ct-btn.primary{background:linear-gradient(120deg,#176b87,#3157a0);border-color:#4b9cce}.ct-tabs{display:flex;gap:8px;margin:14px 0}.ct-panel{padding:18px;border:1px solid rgba(105,160,220,.23);border-radius:16px;background:linear-gradient(135deg,rgba(12,25,47,.9),rgba(19,15,42,.82))}.ct-list{display:grid;gap:10px}.ct-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px;border:1px solid #2d4565;border-radius:12px;background:#101d30}.ct-item strong{color:#edf7ff}.ct-item small{display:block;color:#91a9c9;margin-top:5px}.ct-item-actions{display:flex;gap:6px;flex-wrap:wrap}.ct-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}.ct-form label{display:grid;gap:6px;color:#a9bed9;font-size:12px}.ct-form input,.ct-form textarea{width:100%;box-sizing:border-box;background:#091525;color:#f1f6ff;border:1px solid #40536e;border-radius:8px;padding:10px}.ct-form .wide{grid-column:1/-1}.ct-empty{color:#91a9c9;padding:20px;text-align:center}@media(max-width:650px){.ct-form{grid-template-columns:1fr}.ct-form .wide{grid-column:auto}.ct-item{align-items:flex-start;flex-direction:column}}
 </style></head>
 <body>
 <nav aria-label="Main navigation" class="app-sidebar">
 <div class="side-brand"><div class="brand-mark">☏</div><div><strong>Call Documentation</strong><small>TRACK · DOCUMENT · RESOLVE</small></div></div>
 <button class="side-link active" onclick="showDashboardTab()"><span>⌂</span>Dashboard</button>
-<button class="side-link" onclick="document.querySelector('.calendar-card').scrollIntoView({behavior:'smooth'})"><span>▦</span>Calendar</button>
-<button class="side-link" onclick="document.getElementById('globalSearch').focus();document.getElementById('globalSearch').scrollIntoView({behavior:'smooth',block:'center'})"><span>⌕</span>Search</button>
-<button class="side-link" onclick="openToday()"><span>＋</span>New Call Log</button>
+<button class="side-link" id="otherFormsNav" onclick="showOtherForms()"><span>📝</span>Other Documentation Form</button>
+<button class="side-link" onclick="window.location.href='BALIDASHUN.html'"><span>📋</span>POP Validation</button>
+<button class="side-link" onclick="window.location.href='BALIDASHUN.html#pre-quote'"><span>💳</span>Pre-Quote</button>
+<button class="side-link" onclick="window.location.href='rn-creation.html'"><span>＋</span>RN Creation</button>
 <button class="side-link" id="caseTrackerNav" onclick="showCaseTracker()"><span>▣</span>Open Case Tracker</button>
 <button class="side-link" id="analyticsNav" onclick="showAnalyticsTab()"><span>▥</span>Analytics</button>
-<button class="side-link" id="otherFormsNav" onclick="showOtherForms()"><span>📝</span>Other Docu Form</button>
-<button class="side-link" onclick="exportBackup()"><span>☁</span>Backup &amp; Export</button>
+<button class="side-link" onclick="openAutoBackupSettings()"><span>⚙</span>Backup Settings</button>
 <div class="side-spacer"></div>
 <div class="side-safe"><b>◉ Your data is safe</b>Stored locally in your browser</div>
 </nav>
@@ -494,12 +532,9 @@
     </button>
 </header>
 <div class="data-toolbar">
-<button class="toolbar-btn" onclick="exportBackup()">⬇️ Export Backup</button>
-<button class="toolbar-btn" onclick="exportAllDocumentation()">📚 Export All Documentation</button>
-<label class="toolbar-btn import-btn">⬆️ Import Backup<input accept="application/json,.json" id="backupFile" onchange="importBackup(event)" type="file"/></label>
-<button class="toolbar-btn danger" onclick="clearAllData()">🗑️ Clear All Data</button>
 <button class="recovery-toggle" onclick="toggleRecoveryBin()" type="button">♻️ Recycle Bin <span id="recoveryCount">0</span></button>
 <span class="save-indicator" id="saveIndicator" role="status">Saved locally</span>
+<span class="save-indicator" id="autoBackupIndicator" role="status" title="Configure the daily backup schedule in Backup Settings">Auto backup · Daily at 4:00 PM</span>
 </div>
 <div aria-live="polite" class="recovery-panel" id="recoveryPanel"><strong>Recently deleted calls</strong><div id="recoveryList"></div></div>
 <!-- ================= GLOBAL CALL SEARCH ================= -->
@@ -579,16 +614,48 @@
 <div class="arc-form-step" hidden="" id="arcContact"><h3>☎️ Contact Log Documentation</h3><div class="arc-grid">
 <div class="arc-subtitle">Caller Information</div><div class="arc-caller-row">
 <div class="arc-field"><label for="arcCaller">Caller Name</label><input id="arcCaller" placeholder="Caller full name"/></div><div class="arc-field"><label for="arcEmail">Caller Email</label><input id="arcEmail" placeholder="Email address" type="email"/></div><div class="arc-field"><label for="arcPhone">Caller Number</label><input id="arcPhone" placeholder="Contact number"/></div></div>
-<div class="arc-subtitle">Contact Summary &amp; Escalation</div>
-<div class="arc-field full"><label for="arcSummary">Call Summary</label><textarea id="arcSummary" placeholder="Summarise the contact and actions taken"></textarea></div>
+<div class="arc-subtitle">Summary</div>
+<div class="arc-field full compact-summary"><label for="arcSummary">Call Summary</label><textarea id="arcSummary" placeholder="Summarise the contact and actions taken"></textarea></div>
+<div class="arc-subtitle">De-escalation</div>
+<div class="arc-field full compact-summary"><label for="arcDeescalation">De-escalation</label><textarea id="arcDeescalation" placeholder="Document de-escalation steps or discussion"></textarea></div>
 <div class="arc-field"><label for="arcPriority">Priority Repair</label><select id="arcPriority"><option value="">Select</option><option>Yes</option><option>No</option></select></div><div class="arc-field"><label for="arcDiscount">Discounted Repair Fee (5%)</label><select id="arcDiscount"><option value="">Select</option><option>Advised</option><option>Not applicable</option></select></div>
-<div class="arc-field full"><label for="arcEscReason">Reason for Escalations</label><textarea id="arcEscReason" placeholder="Reason for escalation, if applicable"></textarea></div>
+<div class="arc-field full compact-summary"><label for="arcEscReason">Reason for Escalations</label><textarea id="arcEscReason" placeholder="Reason for escalation, if applicable"></textarea></div>
 <div class="arc-field"><label for="arcConsult">Resolution Consultation done with</label><input id="arcConsult" placeholder="Name / team"/></div><div class="arc-field"><label for="arcTransfer">Transferred to</label><input id="arcTransfer" placeholder="Name / team"/></div>
-<div class="arc-field"><label for="arcTicket">Ticket Type</label><select id="arcTicket"><option value="">Select ticket type</option><option>Pickup</option><option>Complaint</option><option>Component swap</option></select></div><div class="arc-field"><label for="arcRepair">Repair Type</label><select id="arcRepair"><option value="">Select repair type</option><option>RTB</option><option>Mail in</option><option>PRR</option><option>Ship direct</option><option>Complaint</option></select></div>
-<div class="arc-subtitle">Collection &amp; Return Details</div>
-<div class="arc-field full"><label for="arcPickupTime">Preferred Courier Pick-up Time and Date</label><input id="arcPickupTime" placeholder="Example: 9am–5pm only AU Only"/></div>
-<div class="arc-field full"><label for="arcAddress">Preferred Pick Up and Return Physical Address</label><textarea id="arcAddress" placeholder="Full collection and return address"></textarea></div>
-<div class="arc-subtitle">Repair Advice / Customer Reminders</div>
+
+<div class="arc-subtitle">Ticket &amp; Repair Type</div>
+
+<div class="arc-field">
+  <label for="arcTicket">Ticket Type</label>
+  <select id="arcTicket">
+    <option value="">Select ticket type</option>
+    <option>Pickup</option>
+    <option>Complaint</option>
+    <option>Component swap</option>
+  </select>
+</div>
+
+<div class="arc-field">
+  <label for="arcRepair">Repair Type</label>
+  <select id="arcRepair">
+    <option value="">Select repair type</option>
+    <option>RTB</option>
+    <option>Mail in</option>
+    <option>PRR</option>
+    <option>Ship direct</option>
+    <option>Complaint</option>
+  </select>
+</div>
+
+<div class="arc-field">
+  <label for="arcPickupTime">Preferred Courier Pick-up Time</label>
+  <input id="arcPickupTime" placeholder="Example: 9am–5pm only AU Only"/>
+</div>
+
+<div class="arc-field">
+  <label for="arcAddress">Preferred Pick Up and Return Physical Address</label>
+  <textarea id="arcAddress" placeholder="Full collection and return address"></textarea>
+</div>
+
 <div class="arc-subtitle">Disclosure</div><div class="arc-field"><label for="arcDataLoss">Repair Notice/Data Loss</label><select id="arcDataLoss"><option value="">Select option</option><option>Y</option><option>N</option></select></div><div class="arc-field"><label for="arcPhotos">Take Photos of all sides prior shipping</label><select id="arcPhotos"><option value="">Select option</option><option>Y</option><option>N</option></select></div><div class="arc-field full"><label for="arcAccessories">Include Accessories</label><input id="arcAccessories" placeholder="Yes, indicate what accessory / No"/></div><div class="arc-field full"><label for="arcPop">Advised to send POP/VOF/POF to pop.aca@acer.com</label><input id="arcPop" placeholder="Enter advice provided to the customer" type="text"/></div><div class="arc-field"><label for="arcSurvey">Survey Offered</label><select id="arcSurvey"><option value="">Select option</option><option>Y</option><option>N</option></select></div>
 </div></div>
 <div class="arc-actions"><button class="arc-btn gray" onclick="arcClearCurrent()">🗑 Clear Form</button><button class="arc-btn gray" id="arcPrev" onclick="arcPrevStep()">← Previous</button><button class="arc-btn green" onclick="arcGenerate()">✨ Generate Documentation</button><button class="arc-btn blue" hidden="" id="arcSaveLog" onclick="openSaveLogModal('arc')">💾 Save Log to Contact Logs</button><button class="arc-btn blue" id="arcNext" onclick="arcNextStep()">Next →</button></div>
@@ -614,14 +681,62 @@
 <div class="other-output"><div class="other-output-head"><h4>Generated Documentation</h4><div class="mini-actions"><button onclick="clearOtherOutput()">▤ Clear</button><button onclick="copyOtherDoc()">▣ Copy</button></div></div><pre id="otherOutput">Your generated documentation will appear here.</pre></div>
 </div>
 </section>
+<!-- ================= AUTOMATIC BACKUP SETTINGS ================= -->
+<div class="modal-overlay" id="autoBackupSettingsModal" style="display:none;z-index:1200;">
+  <div class="modal" style="max-width:480px;">
+    <div class="modal-header">
+      <h2>⚙️ Backup Settings</h2>
+      <button class="close-btn" type="button" onclick="closeAutoBackupSettings()" aria-label="Close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-section">
+        <div class="section-title">Backup &amp; Export</div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap;margin:10px 0 18px;">
+          <button class="toolbar-btn" type="button" onclick="exportBackup()">⬇️ Export Backup</button>
+          <button class="toolbar-btn" type="button" onclick="exportAllDocumentation()">📚 Export All Documentation</button>
+          <label class="toolbar-btn import-btn">⬆️ Import Backup<input accept="application/json,.json" id="backupFile" onchange="importBackup(event)" type="file"/></label>
+          <button class="toolbar-btn danger" type="button" onclick="clearAllData()">🗑️ Clear All Data</button>
+        </div>
+        <div class="section-title">Automatic backup schedule</div>
+        <label style="display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--text,#e8eef8);">
+          <input id="autoBackupEnabled" type="checkbox" checked style="width:18px;height:18px;accent-color:#55aaff;">
+          Enable automatic daily backup
+        </label>
+        <div class="form-group" style="margin-top:14px;">
+          <label for="autoBackupTime">BACKUP TIME</label>
+          <input id="autoBackupTime" type="time" value="16:00" style="width:100%;">
+        </div>
+        <div class="form-group" style="margin-top:16px;">
+          <label>AUTOMATIC BACKUP FOLDER</label>
+          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:7px;">
+            <button class="toolbar-btn" type="button" onclick="chooseAutoBackupFolder()">📁 Choose Folder</button>
+            <button class="toolbar-btn" type="button" onclick="clearAutoBackupFolder()">Use Downloads</button>
+          </div>
+          <div id="autoBackupFolderName" style="font-size:12px;color:#9fb0c8;margin-top:9px;">Default: browser Downloads folder</div>
+          <p style="font-size:12px;line-height:1.5;color:#9fb0c8;margin-top:8px;">Choose your <strong>Documents\Backup</strong> folder (create the Backup folder first if needed). Chrome/Edge will ask you to grant folder access.</p>
+        </div>
+        <p style="font-size:12px;line-height:1.6;color:#9fb0c8;margin-top:12px;">The schedule uses this computer's local time zone: <strong id="autoBackupTimezone"></strong>.</p>
+        <p style="font-size:12px;line-height:1.6;color:#9fb0c8;">Settings are saved separately in each person's browser on this device/profile. Other users can choose their own backup time. The app must be open for the scheduled backup to run; if opened later, it will catch up that day.</p>
+        <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:18px;">
+          <button class="toolbar-btn" type="button" onclick="closeAutoBackupSettings()">Cancel</button>
+          <button class="toolbar-btn" type="button" onclick="saveAutoBackupSettings()">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ================= MODAL ================= -->
 <div class="modal-overlay" id="modalOverlay">
 <div class="modal">
 <div class="modal-header">
 <h2 id="modalTitle">Call Documentation</h2>
-<button class="close-btn" onclick="closeModal()">
+<div style="display:flex;align-items:center;gap:9px;">
+<button class="next-day-btn" type="button" onclick="goToNextDocumentationDate()">Next →</button>
+<button class="close-btn" onclick="closeModal()" aria-label="Close">
                 ×
             </button>
+</div>
 </div>
 <div class="modal-body">
 <!-- ================= FORM ================= -->
@@ -784,6 +899,8 @@ let documentationData = loadDocumentationData();
 let currentDate = new Date();
 
 let selectedDate = null;
+let editingCallIndex = null;
+let editingCallDate = null;
 
 /* Selected folder for direct .txt saving */
 let saveDirectoryHandle = null;
@@ -872,6 +989,30 @@ function dateKey(date) {
     ).padStart(2, "0");
 
     return `${year}-${month}-${day}`;
+}
+   function getTodayKey() {
+    return dateKey(new Date());
+}
+   function updateAddCallAvailability() {
+    const button = document.querySelector(".add-btn");
+    if (!button) return;
+
+    const isToday = selectedDate === getTodayKey();
+    const isEditing = editingCallIndex !== null;
+
+    button.disabled = !isToday && !isEditing;
+
+    if (button.disabled) {
+        button.textContent = "Past Date — View Only";
+        button.style.opacity = "0.45";
+        button.style.cursor = "not-allowed";
+    } else {
+        button.textContent = isEditing
+            ? "Save Changes"
+            : "+ Add Documented Call";
+        button.style.opacity = "1";
+        button.style.cursor = "pointer";
+    }
 }
 
 
@@ -1112,6 +1253,7 @@ function openDate(date) {
 
 
     clearForm();
+    updateAddCallAvailability();
 
     renderCallList();
 
@@ -1125,6 +1267,18 @@ function openDate(date) {
 /* =========================================================
    CLOSE MODAL
 ========================================================= */
+
+function goToNextDocumentationDate() {
+    if (!selectedDate) return;
+
+    // selectedDate is stored as YYYY-MM-DD; use local date parts to avoid timezone shifts.
+    const parts = selectedDate.split("-").map(Number);
+    if (parts.length !== 3 || parts.some(Number.isNaN)) return;
+
+    const nextDate = new Date(parts[0], parts[1] - 1, parts[2] + 1);
+    openDate(nextDate);
+}
+
 
 function closeModal() {
 
@@ -1140,22 +1294,19 @@ function closeModal() {
 ========================================================= */
 
 function clearForm() {
-
     document.getElementById("name").value = "";
-
     document.getElementById("reference").value = "";
-
     document.getElementById("email").value = "";
-
     document.getElementById("phone").value = "";
 
-    const summary =
-        document.getElementById("summary");
-
+    const summary = document.getElementById("summary");
     summary.value = "";
-
     autoResize(summary);
 
+    editingCallIndex = null;
+    editingCallDate = null;
+
+    updateAddCallAvailability();
 }
 
 
@@ -1176,90 +1327,79 @@ function autoResize(textarea) {
 ========================================================= */
 
 function addCall() {
+    const name = document.getElementById("name").value.trim();
+    const reference = document.getElementById("reference").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+    const summary = document.getElementById("summary").value.trim();
 
-    const name =
-        document
-            .getElementById("name")
-            .value
-            .trim();
-
-
-    const reference =
-        document
-            .getElementById("reference")
-            .value
-            .trim();
-
-
-    const email =
-        document
-            .getElementById("email")
-            .value
-            .trim();
-
-
-    const phone =
-        document
-            .getElementById("phone")
-            .value
-            .trim();
-
-
-    const summary =
-        document
-            .getElementById("summary")
-            .value
-            .trim();
-
-
-    /* Require at least one field */
-
-    if (
-        !name &&
-        !reference &&
-        !email &&
-        !phone &&
-        !summary
-    ) {
-
-        alert(
-            "Please enter at least one piece of information."
-        );
-
+    // Require at least one field.
+    if (!name && !reference && !email && !phone && !summary) {
+        alert("Please enter at least one piece of information.");
         return;
-
     }
 
+    if (!selectedDate) {
+        alert("Please select a date before saving a call.");
+        return;
+    }
+   // Prevent adding new calls to past dates.
+// Existing historical calls can still be edited.
+if (
+    editingCallIndex === null &&
+    selectedDate !== getTodayKey()
+) {
+    alert(
+        "You can only add new call documentation for the current date. Past dates are view-only."
+    );
+
+    updateAddCallAvailability();
+    return;
+}
 
     if (!documentationData[selectedDate]) {
-
         documentationData[selectedDate] = [];
-
     }
 
+    if (editingCallIndex !== null) {
+        const targetDate = editingCallDate || selectedDate;
+        const existingCall = documentationData[targetDate]?.[editingCallIndex];
 
-    documentationData[selectedDate].push({
+        if (!existingCall) {
+            alert("This call could not be found. Please reopen it and try again.");
+            editingCallIndex = null;
+            editingCallDate = null;
+            clearForm();
+            return;
+        }
 
-        name: name,
+        documentationData[targetDate][editingCallIndex] = {
+            ...existingCall,
+            name,
+            reference,
+            email,
+            phone,
+            summary
+        };
 
-        reference: reference,
-
-        email: email,
-
-        phone: phone,
-
-        summary: summary
-
-    });
+        // Return to the date whose record was edited.
+        selectedDate = targetDate;
+        editingCallIndex = null;
+        editingCallDate = null;
+    } else {
+        documentationData[selectedDate].push({
+            name,
+            reference,
+            email,
+            phone,
+            summary
+        });
+    }
 
     saveDocumentationData();
-
     clearForm();
-
     renderCallList();
-
     renderCalendar();
-
 }
 
 
@@ -1310,12 +1450,24 @@ function renderCallList() {
                         Call #${index + 1}
                     </div>
 
-                    <button
-                        class="delete-btn"
-                        onclick="deleteCall(${index})"
-                    >
-                        Delete
-                    </button>
+                    <div style="display:flex;gap:8px;">
+                      <button
+                          class="edit-btn"
+                           onclick="editCall(${index})">
+                           Edit
+                      </button>
+
+                      <button
+                          class="move-btn"
+                          onclick="moveCallToDate(${index})">
+                          Move
+                      </button>
+                      <button
+                          class="delete-btn"
+                          onclick="deleteCall(${index})">
+                          Delete
+                      </button>
+                     </div>
 
                 </div>
 
@@ -1368,8 +1520,93 @@ function renderCallList() {
 
 
 /* =========================================================
+   MOVE A CALL TO ANOTHER DATE
+========================================================= */
+function moveCallToDate(index) {
+    if (!selectedDate || !Array.isArray(documentationData[selectedDate])) return;
+
+    const calls = documentationData[selectedDate];
+    const call = calls[index];
+    if (!call) return;
+
+    const enteredDate = prompt(
+        "Move this documentation to which date?\nEnter the date as YYYY-MM-DD (for example, 2026-11-05):",
+        selectedDate
+    );
+    if (enteredDate === null) return;
+
+    const targetDate = enteredDate.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate)) {
+        alert("Please enter the date in YYYY-MM-DD format, for example 2026-11-05.");
+        return;
+    }
+    const [year, month, day] = targetDate.split("-").map(Number);
+    const parsedDate = new Date(year, month - 1, day);
+    if (parsedDate.getFullYear() !== year || parsedDate.getMonth() !== month - 1 || parsedDate.getDate() !== day) {
+        alert("That date is not valid. Please check the year, month, and day.");
+        return;
+    }
+    if (targetDate === selectedDate) {
+        alert("This documentation is already on that date.");
+        return;
+    }
+
+    if (!confirm(`Move this documentation from ${selectedDate} to ${targetDate}?`)) return;
+
+    if (!Array.isArray(documentationData[targetDate])) documentationData[targetDate] = [];
+    documentationData[targetDate].push(call);
+    calls.splice(index, 1);
+    if (calls.length === 0) delete documentationData[selectedDate];
+
+    if (editingCallDate === selectedDate && editingCallIndex === index) {
+        editingCallIndex = null;
+        editingCallDate = null;
+        clearForm();
+    }
+
+    saveDocumentationData();
+    renderCallList();
+    renderCalendar();
+    alert(`Documentation moved to ${targetDate}.`);
+}
+
+
+/* =========================================================
    DELETE CALL
 ========================================================= */
+/* =========================================================
+   EDIT EXISTING CALL
+========================================================= */
+
+function editCall(index) {
+    const calls = documentationData[selectedDate] || [];
+    const call = calls[index];
+
+    if (!call) {
+        alert("This call could not be found.");
+        return;
+    }
+
+    editingCallIndex = index;
+    editingCallDate = selectedDate;
+
+    document.getElementById("name").value = call.name || "";
+    document.getElementById("reference").value = call.reference || "";
+    document.getElementById("email").value = call.email || "";
+    document.getElementById("phone").value = call.phone || "";
+
+    const summary = document.getElementById("summary");
+    summary.value = call.summary || "";
+    autoResize(summary);
+
+    updateAddCallAvailability();
+
+    const formSection = document.querySelector("#modalOverlay .form-section");
+    if (formSection) {
+        formSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+}
+
 
 function deleteCall(index) {
 
@@ -1714,6 +1951,205 @@ async function exportBackup(){
     link.click();
     link.remove();
     setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+
+/* =========================================================
+   AUTOMATIC DAILY BACKUP — PER-USER LOCAL SCHEDULE
+   Each browser profile stores its own enabled/time settings.
+========================================================= */
+const AUTO_BACKUP_LAST_RUN_KEY = "callDocumentationAutoBackupLastRun_v1";
+const AUTO_BACKUP_SETTINGS_KEY = "callDocumentationAutoBackupSettings_v1";
+const AUTO_BACKUP_FOLDER_DB = "callDocumentationBackupFolderDB_v1";
+const AUTO_BACKUP_FOLDER_STORE = "handles";
+const AUTO_BACKUP_FOLDER_KEY = "dailyBackupFolder";
+let autoBackupCheckInProgress = false;
+
+function getAutoBackupSettings(){
+    const defaults = {enabled:true, time:"16:00"};
+    try {
+        const saved = JSON.parse(localStorage.getItem(AUTO_BACKUP_SETTINGS_KEY) || "null");
+        if(saved && typeof saved === "object") return {
+            enabled: saved.enabled !== false,
+            time: /^([01]\d|2[0-3]):[0-5]\d$/.test(saved.time || "") ? saved.time : defaults.time
+        };
+    } catch(error) {}
+    return defaults;
+}
+
+function openAutoBackupSettings(){
+    const settings = getAutoBackupSettings();
+    const enabled = document.getElementById("autoBackupEnabled");
+    const time = document.getElementById("autoBackupTime");
+    const zone = document.getElementById("autoBackupTimezone");
+    if(enabled) enabled.checked = settings.enabled;
+    if(time) time.value = settings.time;
+    if(zone) zone.textContent = Intl.DateTimeFormat().resolvedOptions().timeZone || "device local time";
+    refreshAutoBackupFolderLabel();
+    const modal = document.getElementById("autoBackupSettingsModal");
+    if(modal) modal.style.display = "flex";
+}
+
+function closeAutoBackupSettings(){
+    const modal = document.getElementById("autoBackupSettingsModal");
+    if(modal) modal.style.display = "none";
+}
+
+function updateAutoBackupIndicator(message){
+    const indicator = document.getElementById("autoBackupIndicator");
+    if(!indicator) return;
+    const settings = getAutoBackupSettings();
+    if(message){ indicator.textContent = message; return; }
+    indicator.textContent = settings.enabled ? `Auto backup · Daily at ${settings.time}` : "Auto backup · Off";
+    indicator.title = "Configure the automatic backup schedule in Backup Settings";
+}
+
+function saveAutoBackupSettings(){
+    const enabled = !!document.getElementById("autoBackupEnabled")?.checked;
+    const time = document.getElementById("autoBackupTime")?.value || "16:00";
+    if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(time)){
+        alert("Please choose a valid backup time.");
+        return;
+    }
+    try {
+        localStorage.setItem(AUTO_BACKUP_SETTINGS_KEY, JSON.stringify({enabled, time}));
+    } catch(error) {
+        alert("Could not save backup settings in this browser.");
+        return;
+    }
+    closeAutoBackupSettings();
+    updateAutoBackupIndicator();
+    checkAutomaticDailyBackup();
+}
+
+function openAutoBackupFolderDB(){
+    return new Promise((resolve,reject)=>{
+        const request=indexedDB.open(AUTO_BACKUP_FOLDER_DB,1);
+        request.onupgradeneeded=()=>request.result.createObjectStore(AUTO_BACKUP_FOLDER_STORE);
+        request.onsuccess=()=>resolve(request.result);
+        request.onerror=()=>reject(request.error || new Error("Could not open backup folder settings."));
+    });
+}
+async function storeAutoBackupFolderHandle(handle){
+    const db=await openAutoBackupFolderDB();
+    await new Promise((resolve,reject)=>{
+        const tx=db.transaction(AUTO_BACKUP_FOLDER_STORE,"readwrite");
+        tx.objectStore(AUTO_BACKUP_FOLDER_STORE).put(handle,AUTO_BACKUP_FOLDER_KEY);
+        tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+    });
+    db.close();
+}
+async function getAutoBackupFolderHandle(){
+    try{
+        const db=await openAutoBackupFolderDB();
+        const handle=await new Promise((resolve,reject)=>{
+            const req=db.transaction(AUTO_BACKUP_FOLDER_STORE,"readonly").objectStore(AUTO_BACKUP_FOLDER_STORE).get(AUTO_BACKUP_FOLDER_KEY);
+            req.onsuccess=()=>resolve(req.result || null); req.onerror=()=>reject(req.error);
+        });
+        db.close(); return handle;
+    }catch(error){ return null; }
+}
+async function deleteAutoBackupFolderHandle(){
+    try{
+        const db=await openAutoBackupFolderDB();
+        await new Promise((resolve,reject)=>{
+            const tx=db.transaction(AUTO_BACKUP_FOLDER_STORE,"readwrite");
+            tx.objectStore(AUTO_BACKUP_FOLDER_STORE).delete(AUTO_BACKUP_FOLDER_KEY);
+            tx.oncomplete=resolve; tx.onerror=()=>reject(tx.error);
+        }); db.close();
+    }catch(error){}
+}
+async function refreshAutoBackupFolderLabel(){
+    const label=document.getElementById("autoBackupFolderName");
+    if(!label) return;
+    const handle=await getAutoBackupFolderHandle();
+    label.textContent=handle ? `Selected folder: ${handle.name}` : "Default: browser Downloads folder";
+}
+async function chooseAutoBackupFolder(){
+    if(!window.showDirectoryPicker){
+        alert("Folder selection is supported in recent Chrome and Edge versions. This browser will use Downloads instead."); return;
+    }
+    try{
+        const handle=await window.showDirectoryPicker({mode:"readwrite",startIn:"documents"});
+        let permission=await handle.queryPermission({mode:"readwrite"});
+        if(permission!=="granted") permission=await handle.requestPermission({mode:"readwrite"});
+        if(permission!=="granted") throw new Error("Folder permission was not granted.");
+        await storeAutoBackupFolderHandle(handle);
+        await refreshAutoBackupFolderLabel();
+        updateAutoBackupIndicator("Backup folder selected · " + handle.name);
+    }catch(error){
+        if(error.name!=="AbortError") alert("Could not select that folder: " + (error.message || error));
+    }
+}
+async function clearAutoBackupFolder(){
+    await deleteAutoBackupFolderHandle();
+    await refreshAutoBackupFolderLabel();
+    updateAutoBackupIndicator("Auto backup will use Downloads");
+}
+async function createAutomaticBackup(){
+    const now = new Date();
+    const day = dateKey(now);
+    const backup = {
+        app: "Call Documentation Log",
+        version: 4,
+        backupType: "automatic-daily",
+        exportedAt: now.toISOString(),
+        documentationData: documentationData
+    };
+    const filename = `Call_Documentation_AutoBackup_${day}.json`;
+    const blob = new Blob([JSON.stringify(backup, null, 2)], {type:"application/json"});
+    const folderHandle=await getAutoBackupFolderHandle();
+    if(folderHandle){
+        let permission=await folderHandle.queryPermission({mode:"readwrite"});
+        if(permission!=="granted"){
+            updateAutoBackupIndicator("Backup folder permission needed");
+            throw new Error("Please reopen Backup Settings and reselect the backup folder to renew access. A browser download was not started.");
+        }
+        const fileHandle=await folderHandle.getFileHandle(filename,{create:true});
+        const writable=await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+    }else{
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url; link.download = filename; link.style.display = "none";
+        document.body.appendChild(link); link.click(); link.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }
+    localStorage.setItem(AUTO_BACKUP_LAST_RUN_KEY, day);
+    updateAutoBackupIndicator("Auto backup saved · " + now.toLocaleTimeString([], {hour:"2-digit", minute:"2-digit"}));
+}
+
+async function checkAutomaticDailyBackup(){
+    if(autoBackupCheckInProgress || document.visibilityState === "hidden") return;
+    const settings = getAutoBackupSettings();
+    updateAutoBackupIndicator();
+    if(!settings.enabled) return;
+    const now = new Date();
+    const today = dateKey(now);
+    const [targetHour, targetMinute] = settings.time.split(":").map(Number);
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const targetMinutes = targetHour * 60 + targetMinute;
+    let lastRun = "";
+    try { lastRun = localStorage.getItem(AUTO_BACKUP_LAST_RUN_KEY) || ""; } catch(error) {}
+    if(currentMinutes < targetMinutes || lastRun === today) return;
+    autoBackupCheckInProgress = true;
+    try {
+        await createAutomaticBackup();
+    } catch(error) {
+        console.error("Automatic backup could not be created:", error);
+        updateAutoBackupIndicator("Auto backup needs attention");
+    } finally {
+        autoBackupCheckInProgress = false;
+    }
+}
+
+function startAutomaticDailyBackup(){
+    updateAutoBackupIndicator();
+    checkAutomaticDailyBackup();
+    setInterval(checkAutomaticDailyBackup, 30000);
+    document.addEventListener("visibilitychange", checkAutomaticDailyBackup);
+    window.addEventListener("focus", checkAutomaticDailyBackup);
 }
 
 async function exportAllDocumentation(){
@@ -2141,8 +2577,11 @@ function buildDashboardLayout() {
     bottom.className = 'bottom-grid analytics-page';
     bottom.id = 'analyticsPage';
     bottom.innerHTML = '<div class="analytics-header"><div><h2>Analytics & Insights</h2><p>Understand your documentation activity without crowding the dashboard.</p></div><button class="toolbar-btn" onclick="showDashboardTab()">← Back to Dashboard</button></div><div class="analytics-tools"><div class="analytics-filter-group"><label for="analyticsRange">Date range</label><select id="analyticsRange" onchange="renderDashboardExtras()"><option value="7">Last 7 days</option><option value="30">Last 30 days</option><option value="6" selected>Last 6 months</option><option value="12">Last 12 months</option></select></div><button class="toolbar-btn" type="button" onclick="exportAnalyticsCSV()">↓ Export Analytics CSV</button></div><div class="analytics-kpis"><div class="analytics-kpi"><small>Total call logs</small><strong id="analyticsTotal">0</strong><span>All saved dates</span></div><div class="analytics-kpi"><small>This month</small><strong id="analyticsMonth">0</strong><span>Current month activity</span></div><div class="analytics-kpi"><small>Summaries completed</small><strong id="analyticsCompleted">0</strong><span id="analyticsCompletionRate">0% of logged calls</span></div><div class="analytics-kpi"><small>Active days</small><strong id="analyticsDays">0</strong><span>Dates with call records</span></div><div class="analytics-kpi"><small>Non-case-created calls</small><strong id="analyticsNonCase">0</strong><span>Reference starts with AU</span></div><div class="analytics-kpi"><small>Case-created calls</small><strong id="analyticsCase">0</strong><span>Reference does not start with AU</span></div></div><div class="analytics-content"><section class="analytics-panel" style="grid-column:1/-1"><h3>Monthly Breakdown</h3><div class="analytics-table-wrap"><table class="analytics-table"><thead><tr><th>Month</th><th>Total calls</th><th>Non-case-created</th><th>Case-created</th><th>Non-case %</th><th>Case %</th></tr></thead><tbody id="analyticsMonthlyRows"></tbody></table></div></section><section class="analytics-panel"><h3>Activity Insights</h3><div id="analyticsInsights" class="analytics-insights"></div></section><section class="analytics-panel"><h3>Monthly call volume · Selected range</h3><div class="month-bars" id="analyticsMonthBars"></div><div class="analytics-note">Counts are calculated from the records saved in this browser.</div></section><section class="analytics-panel"><h3>Recent Activity</h3><div id="activityList"></div></section><section class="analytics-panel" style="grid-column:1/-1"><h3>Call Trends · Total vs. Call Type</h3><div class="trend-legend"><span><i class="legend-total"></i>Total calls</span><span><i class="legend-noncase"></i>Non-case-created (AU…)</span><span><i class="legend-case"></i>Case-created (non-AU)</span></div><div id="analyticsTrendChart" class="trend-chart" role="img" aria-label="Line chart comparing total calls, non-case-created calls, and case-created calls over the last six months"></div><div class="analytics-note">Monthly counts based on each saved call reference. References beginning with AU are non-case-created; all other references are case-created.</div></section></div>';
-    const tracker=document.createElement('section'); tracker.id='caseTrackerPage'; tracker.className='case-tracker-page'; tracker.innerHTML='<div class=\"ct-head\"><div><h2>Open Case Tracker</h2><p>Track active cases and keep completed cases in the closed bin.</p></div><div class=\"ct-actions\"><button class=\"ct-btn primary\" onclick=\"ctNewCase()\">＋ Add Case</button></div></div><div class=\"ct-tabs\"><button class=\"ct-btn primary\" id=\"ctOpenTab\" onclick=\"ctShowList(\'open\')\">Open Cases</button><button class=\"ct-btn\" id=\"ctClosedTab\" onclick=\"ctShowList(\'closed\')\">Closed Case Bin</button></div><div class=\"ct-panel\"><div id=\"ctEditor\"></div><div class=\"ct-list\" id=\"ctList\"></div></div>'; shell.appendChild(tracker);
     shell.appendChild(bottom);
+    const tracker=document.createElement('section');
+    tracker.id='caseTrackerPage'; tracker.className='case-tracker-page';
+    tracker.innerHTML='<div class="ct-head"><div><h2>Open Case Tracker</h2><p>Track active cases and keep completed cases in the closed bin.</p></div><div class="ct-actions"><button class="ct-btn primary" type="button" onclick="ctNewCase()">＋ Add Case</button></div></div><div class="ct-tabs"><button class="ct-btn primary" id="ctOpenTab" type="button" onclick="ctShowList(\'open\')">Open Cases</button><button class="ct-btn" id="ctClosedTab" type="button" onclick="ctShowList(\'closed\')">Closed Case Bin</button></div><div class="ct-panel"><div id="ctEditor"></div><div class="ct-list" id="ctList"></div></div>';
+    shell.appendChild(tracker);
     // Add a clear active state on navigation without affecting functionality.
     document.querySelectorAll('.side-link').forEach(btn => btn.addEventListener('click', () => {
       document.querySelectorAll('.side-link').forEach(b => b.classList.remove('active'));
@@ -2180,6 +2619,7 @@ function showDashboardTab(){
   const nav=document.querySelector('.side-link'); if(nav)nav.classList.add('active');
   window.scrollTo({top:0,behavior:'smooth'});
 }
+  window.showDashboardTab = showDashboardTab;
 
 function renderDashboardExtras() {
     const all = [];
@@ -2255,19 +2695,19 @@ function arcPrevStep(){arcShowStep(arcSteps[Math.max(0,arcSteps.indexOf(arcCurre
 function arcFields(){return [...document.querySelectorAll('#arcFormsShell input[id],#arcFormsShell textarea[id],#arcFormsShell select[id]')];}
 function arcSave(){const data={};arcFields().forEach(el=>data[el.id]=el.type==='checkbox'?el.checked:el.value);try{localStorage.setItem(ARC_STORAGE_KEY,JSON.stringify(data));}catch(e){} }
 function arcLoad(){try{const data=JSON.parse(localStorage.getItem(ARC_STORAGE_KEY)||'{}');arcFields().forEach(el=>{if(!(el.id in data))return;if(el.type==='checkbox')el.checked=!!data[el.id];else el.value=data[el.id];});}catch(e){}}
-function arcClearCurrent(){const ids={problem:['arcFault','arcWhen','arcReason','arcReplicate','arcChanges'],solution:['arcCustomerTS','arcNccTS','arcParts'],contact:['arcCaller','arcPhone','arcEmail','arcSummary','arcPriority','arcDiscount','arcEscReason','arcConsult','arcTransfer','arcTicket','arcRepair','arcPickupTime','arcAddress','arcDataLoss','arcPhotos','arcAccessories','arcPop','arcSurvey']}[arcCurrentStep];ids.forEach(id=>{const el=document.getElementById(id);if(el.type==='checkbox')el.checked=false;else el.value='';});arcSave();document.getElementById('arcStatus').textContent='Current section cleared.';}
+function arcClearCurrent(){const ids={problem:['arcFault','arcWhen','arcReason','arcReplicate','arcChanges'],solution:['arcCustomerTS','arcNccTS','arcParts'],contact:['arcCaller','arcPhone','arcEmail','arcSummary','arcDeescalation','arcPriority','arcDiscount','arcEscReason','arcConsult','arcTransfer','arcTicket','arcRepair','arcPickupTime','arcAddress','arcDataLoss','arcPhotos','arcAccessories','arcPop','arcSurvey']}[arcCurrentStep];ids.forEach(id=>{const el=document.getElementById(id);if(el.type==='checkbox')el.checked=false;else el.value='';});arcSave();document.getElementById('arcStatus').textContent='Current section cleared.';}
 function arcVal(id){const el=document.getElementById(id);return el?(el.type==='checkbox'?(el.checked?'Yes':'No'):el.value.trim()):'';}
 function arcGenerate(){
  const defs={
   problem:[['Fault / Issue','arcFault'],['When did the issue occur?','arcWhen'],['Call Reason','arcReason'],['How can the issue be replicated?','arcReplicate'],['Any recent HW/SW modification/change?','arcChanges']],
   solution:[['Customer / Retailer troubleshooting done before calling Acer','arcCustomerTS'],['NCC T/S done with the customer','arcNccTS'],['Suspected Parts?','arcParts']],
-  contact:[['Caller Name','arcCaller'],['Number','arcPhone'],['Email','arcEmail'],['Call Summary','arcSummary'],['Priority Repair','arcPriority'],['Discounted Repair Fee (5%)','arcDiscount'],['Reason for Escalations','arcEscReason'],['Resolution Consultation done with','arcConsult'],['Transferred to','arcTransfer'],['Ticket Type','arcTicket'],['Repair Type','arcRepair'],['Preferred Courier Pick-up Time and Date','arcPickupTime'],['Preferred Pick Up and Return Physical Address','arcAddress'],['Repair Notice/Data Loss','arcDataLoss'],['Take Photos of all side prior shipping','arcPhotos'],['Include Accessories','arcAccessories'],['Advised to send POP/VOF/POF to pop.aca@acer.com','arcPop'],['Survey Offered','arcSurvey']]
+  contact:[['Caller Name','arcCaller'],['Number','arcPhone'],['Email','arcEmail'],['Call Summary','arcSummary'],['De-escalation','arcDeescalation'],['Priority Repair','arcPriority'],['Discounted Repair Fee (5%)','arcDiscount'],['Reason for Escalations','arcEscReason'],['Resolution Consultation done with','arcConsult'],['Transferred to','arcTransfer'],['Ticket Type','arcTicket'],['Repair Type','arcRepair'],['Preferred Courier Pick-up Time and Date','arcPickupTime'],['Preferred Pick Up and Return Physical Address','arcAddress'],['Repair Notice/Data Loss','arcDataLoss'],['Take Photos of all side prior shipping','arcPhotos'],['Include Accessories','arcAccessories'],['Advised to send POP/VOF/POF to pop.aca@acer.com','arcPop'],['Survey Offered','arcSurvey']]
  };
  const headings={problem:'Problem Field Documentation:',solution:'Solutions Field Documentation:',contact:'Contact Log Documentation:'};
  const lines=[headings[arcCurrentStep]];
  if(arcCurrentStep==='contact'){
   const v=id=>arcVal(id)||'N/A';
-  lines.push('Caller Name: '+v('arcCaller'),'Number: '+v('arcPhone'),'Email: '+v('arcEmail'),'==','Call Summary: '+v('arcSummary'),'==','De-escalation:','* Priority Repair: '+v('arcPriority'),'* Discounted Repair Fee (5%): '+v('arcDiscount'),'* Reason for Escalations: '+v('arcEscReason'),'* Resolution Consultation done with: '+v('arcConsult'),'* Transferred to: '+v('arcTransfer'),'==','* Ticket Type: '+v('arcTicket'),'* Repair Type: '+v('arcRepair'),'* Preferred Courier Pick-up Time and Date: '+v('arcPickupTime'),'* Preferred Pick Up and Return Physical Address: '+v('arcAddress'),'==','Disclosure:','* Repair Notice/Data Loss: '+v('arcDataLoss'),'* Take Photos of all side prior shipping: '+v('arcPhotos'),'* Include Accessories: '+v('arcAccessories'),'* Advised to send POP/VOF/POF to pop.aca@acer.com: '+v('arcPop'),'==','• Survey Offered: '+v('arcSurvey'));
+  lines.push('Caller Name: '+v('arcCaller'),'Number: '+v('arcPhone'),'Email: '+v('arcEmail'),'==','Call Summary: '+v('arcSummary'),'==','De-escalation: '+v('arcDeescalation'),'==','* Priority Repair: '+v('arcPriority'),'* Discounted Repair Fee (5%): '+v('arcDiscount'),'* Reason for Escalations: '+v('arcEscReason'),'* Resolution Consultation done with: '+v('arcConsult'),'* Transferred to: '+v('arcTransfer'),'==','* Ticket Type: '+v('arcTicket'),'* Repair Type: '+v('arcRepair'),'* Preferred Courier Pick-up Time and Date: '+v('arcPickupTime'),'* Preferred Pick Up and Return Physical Address: '+v('arcAddress'),'==','Disclosure:','* Repair Notice/Data Loss: '+v('arcDataLoss'),'* Take Photos of all side prior shipping: '+v('arcPhotos'),'* Include Accessories: '+v('arcAccessories'),'* Advised to send POP/VOF/POF to pop.aca@acer.com: '+v('arcPop'),'==','• Survey Offered: '+v('arcSurvey'));
  }else{
   defs[arcCurrentStep].forEach(([label,id])=>lines.push(label+': '+(arcVal(id)||'N/A')));
  }
@@ -2417,7 +2857,7 @@ function openSaveLogModal(source){
 }
 function closeSaveLogModal(){const m=document.getElementById('saveLogModal');m.classList.remove('open');m.setAttribute('aria-hidden','true');pendingDocumentationSource=null;}
 function arcAllDocumentation(){
- const defs={problem:[['Fault / Issue','arcFault'],['When did the issue occur?','arcWhen'],['Call Reason','arcReason'],['How can the issue be replicated?','arcReplicate'],['Any recent HW/SW modification/change?','arcChanges']],solution:[['Customer / Retailer troubleshooting done before calling Acer','arcCustomerTS'],['NCC T/S done with the customer','arcNccTS'],['Suspected Parts?','arcParts']],contact:[['Caller Name','arcCaller'],['Number','arcPhone'],['Email','arcEmail'],['Call Summary','arcSummary'],['Priority Repair','arcPriority'],['Discounted Repair Fee (5%)','arcDiscount'],['Reason for Escalations','arcEscReason'],['Resolution Consultation done with','arcConsult'],['Transferred to','arcTransfer'],['Ticket Type','arcTicket'],['Repair Type','arcRepair'],['Preferred Courier Pick-up Time and Date','arcPickupTime'],['Preferred Pick Up and Return Physical Address','arcAddress'],['Repair Notice/Data Loss','arcDataLoss'],['Take Photos of all side prior shipping','arcPhotos'],['Include Accessories','arcAccessories'],['Advised to send POP/VOF/POF to pop.aca@acer.com','arcPop'],['Survey Offered','arcSurvey']]};
+ const defs={problem:[['Fault / Issue','arcFault'],['When did the issue occur?','arcWhen'],['Call Reason','arcReason'],['How can the issue be replicated?','arcReplicate'],['Any recent HW/SW modification/change?','arcChanges']],solution:[['Customer / Retailer troubleshooting done before calling Acer','arcCustomerTS'],['NCC T/S done with the customer','arcNccTS'],['Suspected Parts?','arcParts']],contact:[['Caller Name','arcCaller'],['Number','arcPhone'],['Email','arcEmail'],['Call Summary','arcSummary'],['De-escalation','arcDeescalation'],['Priority Repair','arcPriority'],['Discounted Repair Fee (5%)','arcDiscount'],['Reason for Escalations','arcEscReason'],['Resolution Consultation done with','arcConsult'],['Transferred to','arcTransfer'],['Ticket Type','arcTicket'],['Repair Type','arcRepair'],['Preferred Courier Pick-up Time and Date','arcPickupTime'],['Preferred Pick Up and Return Physical Address','arcAddress'],['Repair Notice/Data Loss','arcDataLoss'],['Take Photos of all side prior shipping','arcPhotos'],['Include Accessories','arcAccessories'],['Advised to send POP/VOF/POF to pop.aca@acer.com','arcPop'],['Survey Offered','arcSurvey']]};
  const heads={problem:'Problem Field Documentation:',solution:'Solutions Field Documentation:',contact:'Contact Log Documentation:'};
  return ['problem','solution','contact'].map((k,i)=>[heads[k],...defs[k].map(([label,id])=>label+': '+(arcVal(id)||'N/A'))].join('\n')).join('\n==\n');
 }
@@ -2444,7 +2884,12 @@ function confirmSaveDocumentationLog(){
  }else{
    saveOtherForm();const d=otherStorage()[otherType]||{};name=d['Caller Name']||'';email=d['Email']||'';phone=d['Number']||d['Caller Number']||'';summary=otherAllDocumentation();sourceType=otherSchemas[otherType].title;
  }
- const date=selectedDate||dateKey(new Date());if(!documentationData[date])documentationData[date]=[];
+ // Always save new Other Documentation logs under today's date.
+ const date = dateKey(new Date());
+
+ if (!documentationData[date]) {
+     documentationData[date] = [];
+ }
  const duplicate=Object.values(documentationData).flat().some(c=>String(c.reference||'').trim().toLowerCase()===ref.toLowerCase());
  if(duplicate&&!confirm('A call with this reference number already exists. Save another entry anyway?'))return;
  documentationData[date].push({name,reference:ref,email,phone,summary,source:sourceType,createdAt:new Date().toISOString()});
@@ -2454,26 +2899,39 @@ function confirmSaveDocumentationLog(){
 }
 
 /* =========================================================
-   OPEN CASE TRACKER - local browser storage
+   OPEN CASE TRACKER - separate local storage, independent of call logs
 ========================================================= */
-const CT_KEY='acerOpenCaseTracker_v1';let ctMode='open';
-function ctRead(){try{return JSON.parse(localStorage.getItem(CT_KEY)||'[]')}catch(e){return []}}
+const CT_KEY='acerOpenCaseTracker_v1';
+let ctMode='open';
+function ctRead(){try{const data=JSON.parse(localStorage.getItem(CT_KEY)||'[]');return Array.isArray(data)?data:[]}catch(e){return []}}
 function ctWrite(rows){localStorage.setItem(CT_KEY,JSON.stringify(rows));ctRender()}
 function showCaseTracker(){
- document.getElementById('arcFormsShell')?.classList.remove('active');document.getElementById('otherFormsShell')?.classList.remove('active');
- const main=document.querySelector('.main-shell');if(main)main.style.display='';
- ['.dashboard-grid','.stats','.header','.data-toolbar'].forEach(sel=>{const el=document.querySelector(sel);if(el)el.style.display='none'});
- document.getElementById('analyticsPage')?.classList.remove('analytics-active');
- document.getElementById('caseTrackerPage')?.classList.add('active');
- document.querySelectorAll('.side-link').forEach(b=>b.classList.remove('active'));document.getElementById('caseTrackerNav')?.classList.add('active');
- ctShowList('open');window.scrollTo({top:0,behavior:'smooth'});
+  document.getElementById('arcFormsShell')?.classList.remove('active');
+  document.getElementById('otherFormsShell')?.classList.remove('active');
+  const otherForm=document.getElementById('otherForm');if(otherForm)otherForm.classList.remove('active');
+  const otherHub=document.getElementById('otherHub');if(otherHub)otherHub.style.display='grid';
+  const main=document.querySelector('.main-shell');if(main)main.style.display='';
+  ['.dashboard-grid','.stats','.header','.data-toolbar'].forEach(sel=>{const el=document.querySelector(sel);if(el)el.style.display='none'});
+  document.getElementById('analyticsPage')?.classList.remove('analytics-active');
+  document.getElementById('caseTrackerPage')?.classList.add('active');
+  document.querySelectorAll('.side-link').forEach(b=>b.classList.remove('active'));
+  document.getElementById('caseTrackerNav')?.classList.add('active');
+  ctShowList('open');window.scrollTo({top:0,behavior:'smooth'});
 }
-function ctNewCase(id){const row=id?ctRead().find(x=>x.id===id):null;const ed=document.getElementById('ctEditor');if(!ed)return;
- ed.innerHTML=`<h3 style="margin:0 0 12px;color:#eaf5ff">${row?'Edit Case':'Add New Case'}</h3><form class="ct-form" onsubmit="ctSave(event,'${row?row.id:''}')"><label>Case ID *<input id="ctCaseId" required value="${row?escapeHTML(row.caseId):''}"></label><label>Customer Name<input id="ctCustomer" value="${row?escapeHTML(row.customer):''}"></label><label>Date Opened<input id="ctDate" type="date" value="${row?escapeHTML(row.date):new Date().toISOString().slice(0,10)}"></label><label>Assigned To<input id="ctAssigned" value="${row?escapeHTML(row.assigned):''}"></label><label class="wide">Progress / Notes<textarea id="ctNotes" rows="3">${row?escapeHTML(row.notes):''}</textarea></label><div class="wide ct-actions"><button class="ct-btn primary" type="submit">Save Case</button><button class="ct-btn" type="button" onclick="document.getElementById('ctEditor').innerHTML='';">Cancel</button></div></form>`;
+function ctNewCase(id){
+  const row=id?ctRead().find(x=>x.id===id):null;const ed=document.getElementById('ctEditor');if(!ed)return;
+  ed.innerHTML=`<h3 style="margin:0 0 12px;color:#eaf5ff">${row?'View / Edit Case':'Add New Case'}</h3><form class="ct-form" onsubmit="ctSave(event,'${row?row.id:''}')"><label>Case ID *<input id="ctCaseId" required value="${row?escapeHTML(row.caseId):''}"></label><label>Customer Name<input id="ctCustomer" value="${row?escapeHTML(row.customer||''):''}"></label><label>Date Opened<input id="ctDate" type="date" value="${row?escapeHTML(row.date||''):new Date().toISOString().slice(0,10)}"></label><label>Assigned To<input id="ctAssigned" value="${row?escapeHTML(row.assigned||''):''}"></label><label class="wide">Progress / Notes<textarea id="ctNotes" rows="3">${row?escapeHTML(row.notes||''):''}</textarea></label><div class="wide ct-actions"><button class="ct-btn primary" type="submit">Save Case</button><button class="ct-btn" type="button" onclick="document.getElementById('ctEditor').innerHTML='';">Cancel</button></div></form>`;
 }
-function ctSave(e,id){e.preventDefault();const rows=ctRead(),data={id:id||('ct_'+Date.now()),caseId:document.getElementById('ctCaseId').value.trim(),customer:document.getElementById('ctCustomer').value.trim(),date:document.getElementById('ctDate').value,assigned:document.getElementById('ctAssigned').value.trim(),notes:document.getElementById('ctNotes').value.trim(),closed:false,updatedAt:new Date().toISOString()};if(!data.caseId)return;const i=rows.findIndex(x=>x.id===id);if(i>=0)rows[i]={...rows[i],...data};else rows.unshift(data);document.getElementById('ctEditor').innerHTML='';ctWrite(rows)}
-function ctShowList(mode){ctMode=mode;document.getElementById('ctOpenTab').classList.toggle('primary',mode==='open');document.getElementById('ctClosedTab').classList.toggle('primary',mode==='closed');document.getElementById('ctEditor').innerHTML='';ctRender()}
-function ctRender(){const el=document.getElementById('ctList');if(!el)return;const rows=ctRead().filter(x=>!!x.closed===(ctMode==='closed'));if(!rows.length){el.innerHTML=`<div class="ct-empty">${ctMode==='open'?'No open cases yet. Click Add Case to get started.':'No closed cases yet.'}</div>`;return}el.innerHTML=rows.map(x=>`<article class="ct-item"><div><strong>${escapeHTML(x.caseId)}</strong><small>${escapeHTML(x.customer||'No customer name')} · Opened: ${escapeHTML(x.date||'—')} · ${escapeHTML(x.assigned||'Unassigned')}</small><small>${escapeHTML(x.notes||'No progress notes')}</small></div><div class="ct-item-actions"><button class="ct-btn" onclick="ctNewCase('${x.id}')">View / Edit</button>${x.closed?`<button class="ct-btn" onclick="ctReopen('${x.id}')">Reopen</button>`:`<button class="ct-btn primary" onclick="ctClose('${x.id}')">Progressed</button>`}</div></article>`).join('')}
+function ctSave(e,id){
+  e.preventDefault();const rows=ctRead();const data={id:id||('ct_'+Date.now()),caseId:document.getElementById('ctCaseId').value.trim(),customer:document.getElementById('ctCustomer').value.trim(),date:document.getElementById('ctDate').value,assigned:document.getElementById('ctAssigned').value.trim(),notes:document.getElementById('ctNotes').value.trim(),updatedAt:new Date().toISOString()};
+  if(!data.caseId)return;const i=rows.findIndex(x=>x.id===id);if(i>=0)rows[i]={...rows[i],...data};else rows.unshift({...data,closed:false});document.getElementById('ctEditor').innerHTML='';ctWrite(rows);
+}
+function ctShowList(mode){ctMode=mode;const open=document.getElementById('ctOpenTab'),closed=document.getElementById('ctClosedTab');if(open)open.classList.toggle('primary',mode==='open');if(closed)closed.classList.toggle('primary',mode==='closed');const ed=document.getElementById('ctEditor');if(ed)ed.innerHTML='';ctRender()}
+function ctRender(){
+  const el=document.getElementById('ctList');if(!el)return;const rows=ctRead().filter(x=>!!x.closed===(ctMode==='closed'));
+  if(!rows.length){el.innerHTML=`<div class="ct-empty">${ctMode==='open'?'No open cases yet. Click Add Case to get started.':'No closed cases yet.'}</div>`;return}
+  el.innerHTML=rows.map(x=>`<article class="ct-item"><div><strong>${escapeHTML(x.caseId||'')}</strong><small>${escapeHTML(x.customer||'No customer name')} · Opened: ${escapeHTML(x.date||'—')} · ${escapeHTML(x.assigned||'Unassigned')}</small><small>${escapeHTML(x.notes||'No progress notes')}</small></div><div class="ct-item-actions"><button class="ct-btn" type="button" onclick="ctNewCase('${x.id}')">View / Edit</button>${x.closed?`<button class="ct-btn" type="button" onclick="ctReopen('${x.id}')">Reopen</button>`:`<button class="ct-btn primary" type="button" onclick="ctClose('${x.id}')">Progressed</button>`}</div></article>`).join('');
+}
 function ctClose(id){if(!confirm('Mark this case as progressed and move it to the Closed Case Bin?'))return;const rows=ctRead();const x=rows.find(r=>r.id===id);if(x){x.closed=true;x.closedAt=new Date().toISOString();ctWrite(rows)}}
 function ctReopen(id){const rows=ctRead();const x=rows.find(r=>r.id===id);if(x){x.closed=false;delete x.closedAt;ctWrite(rows)}}
 
@@ -2487,6 +2945,9 @@ const _arcSaveBtn=document.getElementById('arcSaveLog');if(_arcSaveBtn)_arcSaveB
 renderCalendar();
 renderDashboardExtras();
 renderRecoveryBin();
+startAutomaticDailyBackup();
+const _autoBackupSettingsModal=document.getElementById("autoBackupSettingsModal");
+if(_autoBackupSettingsModal) _autoBackupSettingsModal.addEventListener("click",e=>{if(e.target===_autoBackupSettingsModal) closeAutoBackupSettings();});
 
 // Keyboard shortcuts: Alt+N creates a log, Ctrl/Cmd+K focuses search, Esc closes the record modal.
 document.addEventListener("keydown",function(event){
@@ -2500,7 +2961,6 @@ document.addEventListener("keydown",function(event){
         const modal=document.getElementById("callModal");if(modal && (modal.classList.contains("show")||modal.style.display==="flex"||modal.style.display==="block"))closeModal();
     }
 });
-
 </script>
 </body>
 </html>
